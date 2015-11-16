@@ -1,14 +1,14 @@
 Name:       capi-network-mtp
 Summary:    A MTP library in Native API
-Version:    1.2.1
+Version:    1.2.2
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
 
 # This package would be built only TV
-%if "%{?tizen_profile_name}" != "tv"
-ExcludeArch: %{arm} %ix86 x86_64
+%if "%{?profile}" != "tv"
+ExcludeArch: %arm aarch64 %ix86 x86_64
 %endif
 
 BuildRequires:  cmake

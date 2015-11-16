@@ -141,7 +141,8 @@ typedef enum {
 	MTP_EVENT_OBJECT_ADDED, /**< Object is added */
 	MTP_EVENT_OBJECT_REMOVED, /**< Object is removed */
 	MTP_EVENT_DEVICE_ADDED, /**< Device is added */
-	MTP_EVENT_DEVICE_REMOVED /**< Device is removed */
+	MTP_EVENT_DEVICE_REMOVED, /**< Device is removed */
+	MTP_EVENT_DAEMON_TERMINATED /**< Daemon is terminated */
 } mtp_event_e;
 
 /**

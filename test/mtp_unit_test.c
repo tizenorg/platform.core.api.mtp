@@ -1013,7 +1013,14 @@ int application_test_get_object_handle_using_all_image(void)
 
 void __test_mtp_event_cb(mtp_event_e state, int arg, void *user_data)
 {
+	int ret = 0;
+
 	TC_PRT("state [%d] : %d", state, arg);
+
+	if (state == MTP_EVENT_DAEMON_TERMINATED) {
+		ret = mtp_deinitialize();
+		TC_PRT("ret[%d] : Terminated daemon", ret);
+	}
 }
 
 int application_test_event_callback(void)
