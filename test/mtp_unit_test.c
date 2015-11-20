@@ -506,11 +506,11 @@ int storageinfo_test_get_description(void)
 int storageinfo_test_get_freespace(void)
 {
 	int ret = 0;
-	guint64 value = 0;
+	unsigned long long value = 0;
 	BEGIN();
 
 	ret = mtp_storageinfo_get_freespace(handle, strg_handle, &value);
-	TC_PRT("ret[%d]: freespace[%d]", ret, (int)value);
+	TC_PRT("ret[%d]: freespace[%llu]", ret, value);
 
 	END();
 	return ret;
@@ -519,11 +519,11 @@ int storageinfo_test_get_freespace(void)
 int storageinfo_test_get_maxcapacity(void)
 {
 	int ret = 0;
-	guint64 value = 0;
+	unsigned long long value = 0;
 	BEGIN();
 
 	ret = mtp_storageinfo_get_maxcapacity(handle, strg_handle, &value);
-	TC_PRT("ret[%d]: maxcapacity[%d]", ret, (int)value);
+	TC_PRT("ret[%d]: maxcapacity[%llu]", ret, value);
 
 	END();
 	return ret;
@@ -1118,7 +1118,7 @@ int application_test_scenario(void)
 tc_table_t tc_table[] = {
 	/* manager api */
 	{"mtp_initialize",							1,	manager_test_initialize},
-	{"mtp_get_device_list",							2,	manager_test_get_device_list},
+	{"mtp_get_device_list",						2,	manager_test_get_device_list},
 	{"mtp_get_device_handle",					3,	manager_test_get_device_handle},
 	{"mtp_get_storage_ids",						4,	manager_test_get_storage_ids},
 	{"mtp_get_object_handles",					5,	manager_test_get_object_handles},

@@ -493,7 +493,7 @@ int mtp_storageinfo_get_description(int device_handle, int storage_id, char **de
 	return ret;
 }
 
-int mtp_storageinfo_get_freespace(int device_handle, int storage_id, guint64 *freespace)
+int mtp_storageinfo_get_freespace(int device_handle, int storage_id, unsigned long long *freespace)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -509,16 +509,16 @@ int mtp_storageinfo_get_freespace(int device_handle, int storage_id, guint64 *fr
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_freespace(device_handle, storage_id, freespace);
+	ret = mtp_gdbus_storageinfo_get_freespace(device_handle, storage_id, (guint64 *)freespace);
 
-	TC_PRT("freespace %d", (int)*freespace);
+	TC_PRT("freespace %llu", *freespace);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_storageinfo_get_maxcapacity(int device_handle, int storage_id, guint64 *maxcapacity)
+int mtp_storageinfo_get_maxcapacity(int device_handle, int storage_id, unsigned long long *maxcapacity)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -534,9 +534,9 @@ int mtp_storageinfo_get_maxcapacity(int device_handle, int storage_id, guint64 *
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_maxcapacity(device_handle, storage_id, maxcapacity);
+	ret = mtp_gdbus_storageinfo_get_maxcapacity(device_handle, storage_id, (guint64 *)maxcapacity);
 
-	TC_PRT("maxcapacity %d", (int)*maxcapacity);
+	TC_PRT("maxcapacity %llu", *maxcapacity);
 
 	_END();
 
