@@ -506,11 +506,11 @@ int storageinfo_test_get_description(void)
 int storageinfo_test_get_freespace(void)
 {
 	int ret = 0;
-	guint64 value = 0;
+	unsigned long long value = 0;
 	BEGIN();
 
 	ret = mtp_storageinfo_get_freespace(handle, strg_handle, &value);
-	TC_PRT("ret[%d]: freespace[%d]", ret, (int)value);
+	TC_PRT("ret[%d]: freespace[%llu]", ret, value);
 
 	END();
 	return ret;
@@ -519,11 +519,11 @@ int storageinfo_test_get_freespace(void)
 int storageinfo_test_get_maxcapacity(void)
 {
 	int ret = 0;
-	guint64 value = 0;
+	unsigned long long value = 0;
 	BEGIN();
 
 	ret = mtp_storageinfo_get_maxcapacity(handle, strg_handle, &value);
-	TC_PRT("ret[%d]: maxcapacity[%d]", ret, (int)value);
+	TC_PRT("ret[%d]: maxcapacity[%llu]", ret, value);
 
 	END();
 	return ret;

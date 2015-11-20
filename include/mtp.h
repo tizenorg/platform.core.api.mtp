@@ -419,7 +419,7 @@ MTP_API int mtp_storageinfo_get_description(int device_handle, int storage_id, c
  *
  * @see mtp_get_storage_ids()
  */
-MTP_API int mtp_storageinfo_get_freespace(int device_handle, int storage_id, guint64 *freespace);
+MTP_API int mtp_storageinfo_get_freespace(int device_handle, int storage_id, unsigned long long *freespace);
 
 /**
  * @brief Get the max capacity of the storage information.
@@ -435,7 +435,7 @@ MTP_API int mtp_storageinfo_get_freespace(int device_handle, int storage_id, gui
  *
  * @see mtp_get_storage_ids()
  */
-MTP_API int mtp_storageinfo_get_maxcapacity(int device_handle, int storage_id, guint64 *maxcapacity);
+MTP_API int mtp_storageinfo_get_maxcapacity(int device_handle, int storage_id, unsigned long long *maxcapacity);
 
 /**
  * @brief Get the storage type of the storage information.
