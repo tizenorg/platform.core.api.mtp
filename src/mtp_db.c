@@ -28,7 +28,6 @@
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static sqlite3 *db;
-int ref_count;
 
 mtp_error_e mtp_db_init()
 {
@@ -37,15 +36,11 @@ mtp_error_e mtp_db_init()
 
 	MTP_DB_LOCK;
 
-	if (ref_count > 0) {
-		ref_count++;
-	} else if (db == NULL) {
+	if (db == NULL) {
 		sql_ret = sqlite3_open_v2(MTP_DB_FILE, &db,
-			SQLITE_OPEN_NOMUTEX | SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+			SQLITE_OPEN_FULLMUTEX | SQLITE_OPEN_READWRITE, NULL);
 
-		if (sql_ret == SQLITE_OK)
-			ref_count++;
-		else
+		if (sql_ret != SQLITE_OK)
 			ret = MTP_ERROR_DB;
 	}
 
@@ -125,10 +120,7 @@ mtp_error_e mtp_db_deinit()
 
 	MTP_DB_LOCK;
 
-	if (ref_count > 0)
-		ref_count--;
-
-	if (db != NULL && ref_count == 0) {
+	if (db != NULL) {
 		sql_ret = sqlite3_close(db);
 
 		if (sql_ret != SQLITE_OK)
