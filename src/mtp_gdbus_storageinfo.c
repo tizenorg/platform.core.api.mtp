@@ -34,120 +34,120 @@ void mtp_gdbus_storageinfo_proxy_deinit(void)
 	storageinfo_proxy = NULL;
 }
 
-mtp_error_e mtp_gdbus_storageinfo_get_description(int device_handle,
-	int storage_id, char **description)
+mtp_error_e mtp_gdbus_storageinfo_get_description(int mtp_device,
+	int mtp_storage, char **description)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
 
 	if (storageinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_storageinfo_call_get_description_sync(
 			storageinfo_proxy,
-			device_handle,
-			storage_id,
+			mtp_device,
+			mtp_storage,
 			description,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM_ERROR;
 		g_error_free(error);
 	}
 
 	return result;
 }
 
-mtp_error_e mtp_gdbus_storageinfo_get_freespace(int device_handle,
-	int storage_id, guint64 *freespace)
+mtp_error_e mtp_gdbus_storageinfo_get_freespace(int mtp_device,
+	int mtp_storage, guint64 *freespace)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
 
 	if (storageinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_storageinfo_call_get_free_space_sync(
 			storageinfo_proxy,
-			device_handle,
-			storage_id,
+			mtp_device,
+			mtp_storage,
 			freespace,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM_ERROR;
 		g_error_free(error);
 	}
 
 	return result;
 }
 
-mtp_error_e mtp_gdbus_storageinfo_get_maxcapacity(int device_handle,
-	int storage_id, guint64 *maxcapacity)
+mtp_error_e mtp_gdbus_storageinfo_get_maxcapacity(int mtp_device,
+	int mtp_storage, guint64 *maxcapacity)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
 
 	if (storageinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_storageinfo_call_get_max_capacity_sync(
 			storageinfo_proxy,
-			device_handle,
-			storage_id,
+			mtp_device,
+			mtp_storage,
 			maxcapacity,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM_ERROR;
 		g_error_free(error);
 	}
 
 	return result;
 }
 
-mtp_error_e mtp_gdbus_storageinfo_get_storagetype(int device_handle,
-	int storage_id, int *storagetype)
+mtp_error_e mtp_gdbus_storageinfo_get_storagetype(int mtp_device,
+	int mtp_storage, int *storagetype)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
 
 	if (storageinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_storageinfo_call_get_storage_type_sync(
 			storageinfo_proxy,
-			device_handle,
-			storage_id,
+			mtp_device,
+			mtp_storage,
 			storagetype,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM_ERROR;
 		g_error_free(error);
 	}
 
 	return result;
 }
 
-mtp_error_e mtp_gdbus_storageinfo_get_volumeidentifier(int device_handle,
-	int storage_id, char **volumeidentifier)
+mtp_error_e mtp_gdbus_storageinfo_get_volumeidentifier(int mtp_device,
+	int mtp_storage, char **volumeidentifier)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
 
 	if (storageinfo_proxy == NULL)
-		return MTP_ERROR_GENERAL;
+		return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_storageinfo_call_get_volume_identifier_sync(
 			storageinfo_proxy,
-			device_handle,
-			storage_id,
+			mtp_device,
+			mtp_storage,
 			volumeidentifier,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM_ERROR;
 		g_error_free(error);
 	}
 
