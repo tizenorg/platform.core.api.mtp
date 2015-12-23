@@ -40,7 +40,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_manufacturername(int device_handle, char **
 	GError *error = NULL;
 
 	if (deviceinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_deviceinfo_call_get_manufacturername_sync(
 			deviceinfo_proxy,
@@ -49,7 +49,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_manufacturername(int device_handle, char **
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 		g_error_free(error);
 	}
 
@@ -62,7 +62,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_modelname(int device_handle, char **modelna
 	GError *error = NULL;
 
 	if (deviceinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_deviceinfo_call_get_modelname_sync(
 			deviceinfo_proxy,
@@ -71,7 +71,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_modelname(int device_handle, char **modelna
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 		g_error_free(error);
 	}
 
@@ -84,7 +84,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_serialnumber(int device_handle, char **seri
 	GError *error = NULL;
 
 	if (deviceinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_deviceinfo_call_get_serialnumber_sync(
 			deviceinfo_proxy,
@@ -93,7 +93,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_serialnumber(int device_handle, char **seri
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 		g_error_free(error);
 	}
 
@@ -106,7 +106,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_deviceversion(int device_handle, char **dev
 	GError *error = NULL;
 
 	if (deviceinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_deviceinfo_call_get_deviceversion_sync(
 			deviceinfo_proxy,
@@ -115,7 +115,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_deviceversion(int device_handle, char **dev
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 		g_error_free(error);
 	}
 

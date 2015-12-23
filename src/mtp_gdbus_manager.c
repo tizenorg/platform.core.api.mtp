@@ -76,7 +76,7 @@ mtp_error_e mtp_gdbus_manager_initialize(void)
 	mtp_gdbus_objectinfo_proxy_init();
 
 	if (manager_proxy == NULL)
-		result = MTP_ERROR_GENERAL;
+		result = MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	return result;
 }
@@ -89,7 +89,7 @@ mtp_error_e mtp_gdbus_manager_get_device_list(mtp_device_list **dev_list)
 	GError *error = NULL;
 
 	if (manager_proxy == NULL)
-		return MTP_ERROR_GENERAL;
+		return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_manager_call_get_device_list_sync(
 			manager_proxy,
@@ -98,7 +98,7 @@ mtp_error_e mtp_gdbus_manager_get_device_list(mtp_device_list **dev_list)
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 
 		g_error_free(error);
 		return result;
@@ -143,7 +143,7 @@ mtp_error_e mtp_gdbus_manager_get_device_handle(int bus_location, int *device_ha
 	GError *error = NULL;
 
 	if (manager_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_manager_call_get_device_handle_sync(
 			manager_proxy,
@@ -152,7 +152,7 @@ mtp_error_e mtp_gdbus_manager_get_device_handle(int bus_location, int *device_ha
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 
 		g_error_free(error);
 	}
@@ -168,7 +168,7 @@ mtp_error_e mtp_gdbus_manager_get_storage_ids(int device_handle,
 	GError *error = NULL;
 
 	if (manager_proxy == NULL)
-		return MTP_ERROR_GENERAL;
+		return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_manager_call_get_storage_ids_sync(
 			manager_proxy,
@@ -178,7 +178,7 @@ mtp_error_e mtp_gdbus_manager_get_storage_ids(int device_handle,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 
 		g_error_free(error);
 		return result;
@@ -217,7 +217,7 @@ mtp_error_e mtp_gdbus_manager_get_object_handles(int device_handle,
 	GError *error = NULL;
 
 	if (manager_proxy == NULL)
-		return MTP_ERROR_GENERAL;
+		return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_manager_call_get_object_handles_sync(
 			manager_proxy,
@@ -230,7 +230,7 @@ mtp_error_e mtp_gdbus_manager_get_object_handles(int device_handle,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 
 		g_error_free(error);
 		return result;
@@ -268,7 +268,7 @@ mtp_error_e mtp_gdbus_manager_delete_object(int device_handle,
 	GError *error = NULL;
 
 	if (manager_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_manager_call_delete_object_sync(
 			manager_proxy,
@@ -277,7 +277,7 @@ mtp_error_e mtp_gdbus_manager_delete_object(int device_handle,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 
 		g_error_free(error);
 	}
@@ -292,7 +292,7 @@ mtp_error_e mtp_gdbus_manager_get_object(int device_handle,
 	GError *error = NULL;
 
 	if (manager_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_manager_call_get_object_sync(
 			manager_proxy,
@@ -302,7 +302,7 @@ mtp_error_e mtp_gdbus_manager_get_object(int device_handle,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 
 		g_error_free(error);
 	}
@@ -317,7 +317,7 @@ mtp_error_e mtp_gdbus_manager_get_thumbnail(int device_handle,
 	GError *error = NULL;
 
 	if (manager_proxy == NULL)
-		return MTP_ERROR_GENERAL;
+		return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_manager_call_get_thumbnail_sync(
 			manager_proxy,
@@ -327,7 +327,7 @@ mtp_error_e mtp_gdbus_manager_get_thumbnail(int device_handle,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 
 		g_error_free(error);
 	}

@@ -41,7 +41,7 @@ int mtp_gdbus_objectinfo_get_property(int device_handle,
 	GError *error = NULL;
 
 	if (objectinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_objectinfo_call_get_property_sync(
 			objectinfo_proxy,
@@ -52,7 +52,7 @@ int mtp_gdbus_objectinfo_get_property(int device_handle,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 		g_error_free(error);
 	}
 
@@ -66,7 +66,7 @@ int mtp_gdbus_objectinfo_get_property_string(int device_handle,
 	GError *error = NULL;
 
 	if (objectinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_objectinfo_call_get_property_string_sync(
 			objectinfo_proxy,
@@ -77,7 +77,7 @@ int mtp_gdbus_objectinfo_get_property_string(int device_handle,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 		g_error_free(error);
 	}
 

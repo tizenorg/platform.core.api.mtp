@@ -32,6 +32,12 @@
 #include "mtp_gdbus_storageinfo.h"
 #include "mtp_gdbus_objectinfo.h"
 
+typedef struct _mtp_raw_device {
+	int bus_location;
+	int device_number;
+	char *model_name;
+} mtp_device;
+
 int ref_count = 0;
 bool __is_initialized = false;
 
