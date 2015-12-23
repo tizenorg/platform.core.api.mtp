@@ -22,15 +22,15 @@
 void mtp_gdbus_storageinfo_proxy_init(void);
 void mtp_gdbus_storageinfo_proxy_deinit(void);
 
-mtp_error_e mtp_gdbus_storageinfo_get_description(int device_handle,
-	int storage_id, char **description);
-mtp_error_e mtp_gdbus_storageinfo_get_freespace(int device_handle,
-	int storage_id, guint64 *freespace);
-mtp_error_e mtp_gdbus_storageinfo_get_maxcapacity(int device_handle,
-	int storage_id, guint64 *maxcapacity);
-mtp_error_e mtp_gdbus_storageinfo_get_storagetype(int device_handle,
-	int storage_id, int *storagetype);
-mtp_error_e mtp_gdbus_storageinfo_get_volumeidentifier(int device_handle,
-	int storage_id, char **volumeidentifier);
+mtp_error_e mtp_gdbus_storageinfo_get_description(int mtp_device,
+	int mtp_storage, char **description);
+mtp_error_e mtp_gdbus_storageinfo_get_freespace(int mtp_device,
+	int mtp_storage, guint64 *freespace);
+mtp_error_e mtp_gdbus_storageinfo_get_maxcapacity(int mtp_device,
+	int mtp_storage, guint64 *maxcapacity);
+mtp_error_e mtp_gdbus_storageinfo_get_storagetype(int mtp_device,
+	int mtp_storage, int *storagetype);
+mtp_error_e mtp_gdbus_storageinfo_get_volumeidentifier(int mtp_device,
+	int mtp_storage, char **volumeidentifier);
 
 #endif

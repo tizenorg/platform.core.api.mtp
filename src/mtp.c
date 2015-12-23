@@ -26,14 +26,12 @@
 #include "mtp_internal.h"
 #include "mtp_db.h"
 #include "mtp_debug.h"
+#include "mtp_private.h"
 
 #include "mtp_gdbus_manager.h"
 #include "mtp_gdbus_deviceinfo.h"
 #include "mtp_gdbus_storageinfo.h"
 #include "mtp_gdbus_objectinfo.h"
-
-int ref_count = 0;
-bool __is_initialized = false;
 
 #define MTP_LOCK \
 do { \
@@ -59,43 +57,8 @@ do { \
 	MTP_UNLOCK; \
 } while (0);
 
-#define CHECK_SUPPORTED() \
-do { \
-		{ \
-			if (__is_mtp_supported() == false) { \
-				return MTP_ERROR_NOT_SUPPORTED; \
-		} \
-	} \
-} while (0);
-
-#define CHECK_ACTIVATED() \
-do { \
-		{ \
-			if (__is_mtp_activated() == false) { \
-				return MTP_ERROR_NOT_ACTIVATED; \
-		} \
-	} \
-} while (0);
-
-typedef enum {
-	MTP_PROPERTY_ASSOCIATION_DESC = 1,
-	MTP_PROPERTY_ASSOCIATION_TYPE,
-	MTP_PROPERTY_SIZE,
-	MTP_PROPERTY_DATA_CREATED,
-	MTP_PROPERTY_DATA_MODIFIED,
-	MTP_PROPERTY_FORMAT,
-	MTP_PROPERTY_IMAGE_FIX_DEPTH,
-	MTP_PROPERTY_IMAGE_FIX_WIDTH,
-	MTP_PROPERTY_IMAGE_FIX_HEIGHT,
-	MTP_PROPERTY_PARENT_OBJECT_HANDLE,
-	MTP_PROPERTY_STORAGE_ID,
-	MTP_PROPERTY_THUMBNAIL_SIZE,
-	MTP_PROPERTY_THUMBNAIL_FORMAT,
-	MTP_PROPERTY_THUMBNAIL_WIDTH,
-	MTP_PROPERTY_THUMBNAIL_HEIGHT,
-	MTP_PROPERTY_FILENAME,
-	MTP_PROPERTY_KEYWORDS
-} mtp_property_e;
+int ref_count = 0;
+bool __is_initialized = false;
 
 static bool __is_mtp_supported()
 {
@@ -136,7 +99,7 @@ int mtp_initialize(void)
 	return ret;
 }
 
-int mtp_get_device_list(mtp_device_list **dev_list)
+int mtp_get_raw_devices(mtp_raw_device_h *raw_devices, int *device_count)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -147,17 +110,48 @@ int mtp_get_device_list(mtp_device_list **dev_list)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
+	cond_expr_ret(device_count == NULL, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
+	raw_devices = NULL;
+	*device_count = 0;
 
-	ret = mtp_gdbus_manager_get_device_list(dev_list);
+	ret = mtp_gdbus_manager_get_raw_devices((mtp_raw_device **)raw_devices, device_count);
 
 	_END();
 
 	return ret;
+
 }
 
-int mtp_get_device_handle(int bus_location, int *device_handle)
+int mtp_get_bus_location(mtp_raw_device_h raw_device, int *bus_location)
+{
+	int ret = MTP_ERROR_NONE;
+
+	*bus_location = ((mtp_raw_device *)raw_device)->bus_location;
+
+	return ret;
+}
+
+int mtp_get_device_number(mtp_raw_device_h raw_device, int *device_number)
+{
+	int ret = MTP_ERROR_NONE;
+
+	*device_number = ((mtp_raw_device *)raw_device)->device_number;
+
+	return ret;
+}
+
+int mtp_get_device_name(mtp_raw_device_h raw_device, char **model_name)
+{
+	int ret = MTP_ERROR_NONE;
+
+	*model_name = strdup(((mtp_raw_device *)raw_device)->model_name);
+
+	return ret;
+}
+
+int mtp_get_device(int bus_location, int device_number, int *mtp_device)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -172,16 +166,16 @@ int mtp_get_device_handle(int bus_location, int *device_handle)
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_manager_get_device_handle(bus_location, device_handle);
+	ret = mtp_gdbus_manager_get_device(bus_location, device_number, mtp_device);
 
-	TC_PRT("mtp_handle %d", *device_handle);
+	TC_PRT("mtp_device %d", *mtp_device);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_get_storage_ids(int device_handle, int **storage_ids, int *storage_num)
+int mtp_get_storages(int mtp_device, int **mtp_storages, int* storage_num)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -192,11 +186,11 @@ int mtp_get_storage_ids(int device_handle, int **storage_ids, int *storage_num)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_manager_get_storage_ids(device_handle, storage_ids, storage_num);
+	ret = mtp_gdbus_manager_get_storages(mtp_device, mtp_storages, storage_num);
 
 	TC_PRT("storage number %d", *storage_num);
 
@@ -205,8 +199,8 @@ int mtp_get_storage_ids(int device_handle, int **storage_ids, int *storage_num)
 	return ret;
 }
 
-int mtp_get_object_handles(int device_handle, int storage_id, int format,
-	int parent_object_handle, int **object_handles, int *object_num)
+int mtp_get_object_handles(int mtp_device, int mtp_storage, mtp_filetype_e file_type,
+	int parent, int **object_handles, int* object_num)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -217,20 +211,20 @@ int mtp_get_object_handles(int device_handle, int storage_id, int format,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
-	cond_expr_ret(storage_id == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_manager_get_object_handles(device_handle,
-		storage_id, format, parent_object_handle, object_handles, object_num);
+	ret = mtp_gdbus_manager_get_object_handles(mtp_device,
+		mtp_storage, file_type, parent, object_handles, object_num);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_delete_object(int device_handle, int object_handle)
+int mtp_delete_object(int mtp_device, int object_handle)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -241,19 +235,19 @@ int mtp_delete_object(int device_handle, int object_handle)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 	cond_expr_ret(object_handle == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_manager_delete_object(device_handle, object_handle);
+	ret = mtp_gdbus_manager_delete_object(mtp_device, object_handle);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_get_object(int device_handle, int object_handle, char *dest_path)
+int mtp_get_object(int mtp_device, int object_handle, char *dest_path)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -264,19 +258,19 @@ int mtp_get_object(int device_handle, int object_handle, char *dest_path)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 	cond_expr_ret(dest_path == NULL, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_manager_get_object(device_handle, object_handle, dest_path);
+	ret = mtp_gdbus_manager_get_object(mtp_device, object_handle, dest_path);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_get_thumbnail(int device_handle, int object_handle, char *dest_path)
+int mtp_get_thumbnail(int mtp_device, int object_handle, char *dest_path)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -287,12 +281,12 @@ int mtp_get_thumbnail(int device_handle, int object_handle, char *dest_path)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 	cond_expr_ret(dest_path == NULL, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_manager_get_thumbnail(device_handle, object_handle, dest_path);
+	ret = mtp_gdbus_manager_get_thumbnail(mtp_device, object_handle, dest_path);
 
 	_END();
 
@@ -371,7 +365,7 @@ int mtp_deinitialize(void)
 }
 
 /* Device Info */
-int mtp_deviceinfo_get_manufacturername(int device_handle, char **manufacturername)
+int mtp_deviceinfo_get_manufacturer_name(int mtp_device, char **manufacturer_name)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -382,20 +376,20 @@ int mtp_deviceinfo_get_manufacturername(int device_handle, char **manufacturerna
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_deviceinfo_get_manufacturername(device_handle, manufacturername);
+	ret = mtp_gdbus_deviceinfo_get_manufacturername(mtp_device, manufacturer_name);
 
-	TC_PRT("manufacturername %s", *manufacturername);
+	TC_PRT("manufacturername %s", *manufacturer_name);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_deviceinfo_get_modelname(int device_handle, char **modelname)
+int mtp_deviceinfo_get_model_name(int mtp_device, char **model_name)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -406,20 +400,20 @@ int mtp_deviceinfo_get_modelname(int device_handle, char **modelname)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_deviceinfo_get_modelname(device_handle, modelname);
+	ret = mtp_gdbus_deviceinfo_get_modelname(mtp_device, model_name);
 
-	TC_PRT("modelname %s", *modelname);
+	TC_PRT("modelname %s", *model_name);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_deviceinfo_get_serialnumber(int device_handle, char **serialnumber)
+int mtp_deviceinfo_get_serial_number(int mtp_device, char **serial_number)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -430,20 +424,20 @@ int mtp_deviceinfo_get_serialnumber(int device_handle, char **serialnumber)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_deviceinfo_get_serialnumber(device_handle, serialnumber);
+	ret = mtp_gdbus_deviceinfo_get_serialnumber(mtp_device, serial_number);
 
-	TC_PRT("serialnumber %s", *serialnumber);
+	TC_PRT("serialnumber %s", *serial_number);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_deviceinfo_get_deviceversion(int device_handle, char **deviceversion)
+int mtp_deviceinfo_get_device_version(int mtp_device, char **device_version)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -454,13 +448,13 @@ int mtp_deviceinfo_get_deviceversion(int device_handle, char **deviceversion)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_deviceinfo_get_deviceversion(device_handle, deviceversion);
+	ret = mtp_gdbus_deviceinfo_get_deviceversion(mtp_device, device_version);
 
-	TC_PRT("deviceversion %s", *deviceversion);
+	TC_PRT("deviceversion %s", *device_version);
 
 	_END();
 
@@ -468,7 +462,7 @@ int mtp_deviceinfo_get_deviceversion(int device_handle, char **deviceversion)
 }
 
 /* Storage Info */
-int mtp_storageinfo_get_description(int device_handle, int storage_id, char **description)
+int mtp_storageinfo_get_description(int mtp_device, int mtp_storage, char **description)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -479,12 +473,12 @@ int mtp_storageinfo_get_description(int device_handle, int storage_id, char **de
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
-	cond_expr_ret(storage_id == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_description(device_handle, storage_id, description);
+	ret = mtp_gdbus_storageinfo_get_description(mtp_device, mtp_storage, description);
 
 	TC_PRT("description %s", *description);
 
@@ -493,7 +487,7 @@ int mtp_storageinfo_get_description(int device_handle, int storage_id, char **de
 	return ret;
 }
 
-int mtp_storageinfo_get_freespace(int device_handle, int storage_id, unsigned long long *freespace)
+int mtp_storageinfo_get_free_space(int mtp_device, int mtp_storage, unsigned long long *free_space)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -504,21 +498,21 @@ int mtp_storageinfo_get_freespace(int device_handle, int storage_id, unsigned lo
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
-	cond_expr_ret(storage_id == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_freespace(device_handle, storage_id, (guint64 *)freespace);
+	ret = mtp_gdbus_storageinfo_get_freespace(mtp_device, mtp_storage, (guint64 *)free_space);
 
-	TC_PRT("freespace %llu", *freespace);
+	TC_PRT("freespace %llu", *free_space);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_storageinfo_get_maxcapacity(int device_handle, int storage_id, unsigned long long *maxcapacity)
+int mtp_storageinfo_get_max_capacity(int mtp_device, int mtp_storage, unsigned long long *max_capacity)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -529,21 +523,21 @@ int mtp_storageinfo_get_maxcapacity(int device_handle, int storage_id, unsigned 
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
-	cond_expr_ret(storage_id == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_maxcapacity(device_handle, storage_id, (guint64 *)maxcapacity);
+	ret = mtp_gdbus_storageinfo_get_maxcapacity(mtp_device, mtp_storage, (guint64 *)max_capacity);
 
-	TC_PRT("maxcapacity %llu", *maxcapacity);
+	TC_PRT("maxcapacity %llu", *max_capacity);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_storageinfo_get_storagetype(int device_handle, int storage_id, int *storagetype)
+int mtp_storageinfo_get_storage_type(int mtp_device, int mtp_storage, int *storage_type)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -554,21 +548,21 @@ int mtp_storageinfo_get_storagetype(int device_handle, int storage_id, int *stor
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
-	cond_expr_ret(storage_id == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_storagetype(device_handle, storage_id, storagetype);
+	ret = mtp_gdbus_storageinfo_get_storagetype(mtp_device, mtp_storage, storage_type);
 
-	TC_PRT("storagetype %d", *storagetype);
+	TC_PRT("storagetype %d", *storage_type);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_storageinfo_get_volumeidentifier(int device_handle, int storage_id, char **volumeidentifier)
+int mtp_storageinfo_get_volume_identifier(int mtp_device, int mtp_storage, char **volume_identifier)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -579,14 +573,14 @@ int mtp_storageinfo_get_volumeidentifier(int device_handle, int storage_id, char
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
-	cond_expr_ret(storage_id == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_volumeidentifier(device_handle, storage_id, volumeidentifier);
+	ret = mtp_gdbus_storageinfo_get_volumeidentifier(mtp_device, mtp_storage, volume_identifier);
 
-	TC_PRT("volumeidentifier %s", *volumeidentifier);
+	TC_PRT("volumeidentifier %s", *volume_identifier);
 
 	_END();
 
@@ -594,7 +588,7 @@ int mtp_storageinfo_get_volumeidentifier(int device_handle, int storage_id, char
 }
 
 /* Object Info */
-int mtp_objectinfo_get_parent_object_handle(int device_handle, int object_handle,
+int mtp_objectinfo_get_parent_object_handle(int mtp_device, int object_handle,
 	int *parent_object_handle)
 {
 	int ret = MTP_ERROR_NONE;
@@ -606,11 +600,11 @@ int mtp_objectinfo_get_parent_object_handle(int device_handle, int object_handle
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_PARENT_OBJECT_HANDLE, parent_object_handle);
 
 	TC_PRT("parent object id %d", *parent_object_handle);
@@ -620,8 +614,8 @@ int mtp_objectinfo_get_parent_object_handle(int device_handle, int object_handle
 	return ret;
 }
 
-int mtp_objectinfo_get_storage_id(int device_handle, int object_handle,
-	int *storage_id)
+int mtp_objectinfo_get_storage(int mtp_device, int object_handle,
+	int *mtp_storage)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -632,19 +626,19 @@ int mtp_objectinfo_get_storage_id(int device_handle, int object_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
-		object_handle, MTP_PROPERTY_STORAGE_ID, storage_id);
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
+		object_handle, MTP_PROPERTY_STORAGE, mtp_storage);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_objectinfo_get_association_desc(int device_handle,
+int mtp_objectinfo_get_association_desc(int mtp_device,
 	int object_handle, int *asso_desc)
 {
 	int ret = MTP_ERROR_NONE;
@@ -656,11 +650,11 @@ int mtp_objectinfo_get_association_desc(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_ASSOCIATION_DESC, asso_desc);
 
 	_END();
@@ -668,7 +662,7 @@ int mtp_objectinfo_get_association_desc(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_association_type(int device_handle,
+int mtp_objectinfo_get_association_type(int mtp_device,
 	int object_handle, int *asso_type)
 {
 	int ret = MTP_ERROR_NONE;
@@ -680,11 +674,11 @@ int mtp_objectinfo_get_association_type(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_ASSOCIATION_TYPE, asso_type);
 
 	_END();
@@ -692,7 +686,7 @@ int mtp_objectinfo_get_association_type(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_size(int device_handle, int object_handle, int *size)
+int mtp_objectinfo_get_size(int mtp_device, int object_handle, int *size)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -703,11 +697,11 @@ int mtp_objectinfo_get_size(int device_handle, int object_handle, int *size)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_SIZE, size);
 
 	_END();
@@ -715,7 +709,7 @@ int mtp_objectinfo_get_size(int device_handle, int object_handle, int *size)
 	return ret;
 }
 
-int mtp_objectinfo_get_data_created(int device_handle,
+int mtp_objectinfo_get_data_created(int mtp_device,
 	int object_handle, int *data_created)
 {
 	int ret = MTP_ERROR_NONE;
@@ -727,11 +721,11 @@ int mtp_objectinfo_get_data_created(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_DATA_CREATED, data_created);
 
 	_END();
@@ -739,7 +733,7 @@ int mtp_objectinfo_get_data_created(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_data_modified(int device_handle,
+int mtp_objectinfo_get_data_modified(int mtp_device,
 	int object_handle, int *data_modified)
 {
 	int ret = MTP_ERROR_NONE;
@@ -751,11 +745,11 @@ int mtp_objectinfo_get_data_modified(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_DATA_MODIFIED, data_modified);
 
 	_END();
@@ -763,7 +757,7 @@ int mtp_objectinfo_get_data_modified(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_format(int device_handle, int object_handle, int *format)
+int mtp_objectinfo_get_format(int mtp_device, int object_handle, int *format)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -774,11 +768,11 @@ int mtp_objectinfo_get_format(int device_handle, int object_handle, int *format)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_FORMAT, format);
 
 	_END();
@@ -786,7 +780,7 @@ int mtp_objectinfo_get_format(int device_handle, int object_handle, int *format)
 	return ret;
 }
 
-int mtp_objectinfo_get_image_pix_depth(int device_handle,
+int mtp_objectinfo_get_image_pix_depth(int mtp_device,
 	int object_handle, int *depth)
 {
 	int ret = MTP_ERROR_NONE;
@@ -798,11 +792,11 @@ int mtp_objectinfo_get_image_pix_depth(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_IMAGE_FIX_DEPTH, depth);
 
 	_END();
@@ -810,7 +804,7 @@ int mtp_objectinfo_get_image_pix_depth(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_image_pix_width(int device_handle,
+int mtp_objectinfo_get_image_pix_width(int mtp_device,
 	int object_handle, int *width)
 {
 	int ret = MTP_ERROR_NONE;
@@ -822,11 +816,11 @@ int mtp_objectinfo_get_image_pix_width(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_IMAGE_FIX_WIDTH, width);
 
 	_END();
@@ -834,7 +828,7 @@ int mtp_objectinfo_get_image_pix_width(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_image_pix_height(int device_handle,
+int mtp_objectinfo_get_image_pix_height(int mtp_device,
 	int object_handle, int *height)
 {
 	int ret = MTP_ERROR_NONE;
@@ -846,11 +840,11 @@ int mtp_objectinfo_get_image_pix_height(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_IMAGE_FIX_HEIGHT, height);
 
 	_END();
@@ -858,7 +852,7 @@ int mtp_objectinfo_get_image_pix_height(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_thumbnail_size(int device_handle,
+int mtp_objectinfo_get_thumbnail_size(int mtp_device,
 	int object_handle, int *size)
 {
 	int ret = MTP_ERROR_NONE;
@@ -870,11 +864,11 @@ int mtp_objectinfo_get_thumbnail_size(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_THUMBNAIL_SIZE, size);
 
 	_END();
@@ -882,7 +876,7 @@ int mtp_objectinfo_get_thumbnail_size(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_thumbnail_format(int device_handle,
+int mtp_objectinfo_get_thumbnail_format(int mtp_device,
 	int object_handle, int *format)
 {
 	int ret = MTP_ERROR_NONE;
@@ -894,11 +888,11 @@ int mtp_objectinfo_get_thumbnail_format(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_THUMBNAIL_FORMAT, format);
 
 	_END();
@@ -906,7 +900,7 @@ int mtp_objectinfo_get_thumbnail_format(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_thumbnail_pix_height(int device_handle,
+int mtp_objectinfo_get_thumbnail_pix_height(int mtp_device,
 	int object_handle, int *height)
 {
 	int ret = MTP_ERROR_NONE;
@@ -918,11 +912,11 @@ int mtp_objectinfo_get_thumbnail_pix_height(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_THUMBNAIL_HEIGHT, height);
 
 	_END();
@@ -930,7 +924,7 @@ int mtp_objectinfo_get_thumbnail_pix_height(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_thumbnail_pix_width(int device_handle,
+int mtp_objectinfo_get_thumbnail_pix_width(int mtp_device,
 	int object_handle, int *width)
 {
 	int ret = MTP_ERROR_NONE;
@@ -942,11 +936,11 @@ int mtp_objectinfo_get_thumbnail_pix_width(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_THUMBNAIL_WIDTH, width);
 
 	_END();
@@ -954,7 +948,7 @@ int mtp_objectinfo_get_thumbnail_pix_width(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_filename(int device_handle,
+int mtp_objectinfo_get_file_name(int mtp_device,
 	int object_handle, char **filename)
 {
 	int ret = MTP_ERROR_NONE;
@@ -966,11 +960,11 @@ int mtp_objectinfo_get_filename(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property_string(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property_string(mtp_device,
 		object_handle, MTP_PROPERTY_FILENAME, filename);
 
 	_END();
@@ -978,7 +972,7 @@ int mtp_objectinfo_get_filename(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_keywords(int device_handle,
+int mtp_objectinfo_get_keywords(int mtp_device,
 	int object_handle, char **keywords)
 {
 	int ret = MTP_ERROR_NONE;
@@ -990,11 +984,11 @@ int mtp_objectinfo_get_keywords(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_objectinfo_get_property_string(device_handle,
+	ret = mtp_gdbus_objectinfo_get_property_string(mtp_device,
 		object_handle, MTP_PROPERTY_KEYWORDS, keywords);
 
 	_END();
@@ -1002,7 +996,7 @@ int mtp_objectinfo_get_keywords(int device_handle,
 	return ret;
 }
 
-int mtp_objectinfo_get_object_info(int device_handle,
+int mtp_objectinfo_get_object_info(int mtp_device,
 	int object_handle, mtp_object_info **object_info)
 {
 	int ret = MTP_ERROR_NONE;
@@ -1014,11 +1008,11 @@ int mtp_objectinfo_get_object_info(int device_handle,
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
-	cond_expr_ret(device_handle == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_db_get_object_info(device_handle, object_handle, object_info);
+	ret = mtp_db_get_object_info(mtp_device, object_handle, object_info);
 
 	_END();
 
