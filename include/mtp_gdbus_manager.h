@@ -20,17 +20,17 @@
 #include "mtp_gdbus.h"
 
 mtp_error_e mtp_gdbus_manager_initialize(void);
-mtp_error_e mtp_gdbus_manager_get_device_list(mtp_device_list **dev_list);
-mtp_error_e mtp_gdbus_manager_get_device_handle(int bus_location,
-	int *device_handle);
-mtp_error_e mtp_gdbus_manager_get_storage_ids(int device_handle,
-	int **storage_ids, int *storage_num);
-mtp_error_e mtp_gdbus_manager_get_object_handles(int device_handle,
-	int storage_id, int format, int parent_object_handle, int **object_handles, int *object_num);
-mtp_error_e mtp_gdbus_manager_delete_object(int device_handle, int object_handle);
-mtp_error_e mtp_gdbus_manager_get_object(int device_handle,
+mtp_error_e mtp_gdbus_manager_get_raw_devices(mtp_raw_device ***raw_devices, int *device_count);
+mtp_error_e mtp_gdbus_manager_get_device(int bus_location, int device_number,
+	int *mtp_device);
+mtp_error_e mtp_gdbus_manager_get_storages(int mtp_device,
+	int **mtp_storages, int *storage_num);
+mtp_error_e mtp_gdbus_manager_get_object_handles(int mtp_device,
+	int mtp_storage, int format, int parent_object_handle, int **object_handles, int *object_num);
+mtp_error_e mtp_gdbus_manager_delete_object(int mtp_device, int object_handle);
+mtp_error_e mtp_gdbus_manager_get_object(int mtp_device,
 	int object_handle, char *dest_path);
-mtp_error_e mtp_gdbus_manager_get_thumbnail(int device_handle,
+mtp_error_e mtp_gdbus_manager_get_thumbnail(int mtp_device,
 	int object_handle, char *dest_path);
 mtp_error_e mtp_gdbus_manager_set_event_cb(mtp_event_cb callback, void *user_data);
 mtp_error_e mtp_gdbus_manager_unset_event_cb();

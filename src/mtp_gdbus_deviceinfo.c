@@ -34,88 +34,88 @@ void mtp_gdbus_deviceinfo_proxy_deinit(void)
 	deviceinfo_proxy = NULL;
 }
 
-mtp_error_e mtp_gdbus_deviceinfo_get_manufacturername(int device_handle, char **manufacturername)
+mtp_error_e mtp_gdbus_deviceinfo_get_manufacturername(int mtp_device, char **manufacturername)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
 
 	if (deviceinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_deviceinfo_call_get_manufacturername_sync(
 			deviceinfo_proxy,
-			device_handle,
+			mtp_device,
 			manufacturername,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 		g_error_free(error);
 	}
 
 	return result;
 }
 
-mtp_error_e mtp_gdbus_deviceinfo_get_modelname(int device_handle, char **modelname)
+mtp_error_e mtp_gdbus_deviceinfo_get_modelname(int mtp_device, char **modelname)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
 
 	if (deviceinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_deviceinfo_call_get_modelname_sync(
 			deviceinfo_proxy,
-			device_handle,
+			mtp_device,
 			modelname,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 		g_error_free(error);
 	}
 
 	return result;
 }
 
-mtp_error_e mtp_gdbus_deviceinfo_get_serialnumber(int device_handle, char **serialnumber)
+mtp_error_e mtp_gdbus_deviceinfo_get_serialnumber(int mtp_device, char **serialnumber)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
 
 	if (deviceinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_deviceinfo_call_get_serialnumber_sync(
 			deviceinfo_proxy,
-			device_handle,
+			mtp_device,
 			serialnumber,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 		g_error_free(error);
 	}
 
 	return result;
 }
 
-mtp_error_e mtp_gdbus_deviceinfo_get_deviceversion(int device_handle, char **deviceversion)
+mtp_error_e mtp_gdbus_deviceinfo_get_deviceversion(int mtp_device, char **deviceversion)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
 
 	if (deviceinfo_proxy == NULL)
-			return MTP_ERROR_GENERAL;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
 	if (mtp_gdbuslib_deviceinfo_call_get_deviceversion_sync(
 			deviceinfo_proxy,
-			device_handle,
+			mtp_device,
 			deviceversion,
 			&result,
 			NULL,
 			&error) == FALSE) {
-		result = MTP_ERROR_IO_ERROR;
+		result = MTP_ERROR_COMM;
 		g_error_free(error);
 	}
 

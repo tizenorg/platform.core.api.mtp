@@ -49,7 +49,7 @@ mtp_error_e mtp_db_init()
 	return ret;
 }
 
-mtp_error_e mtp_db_get_object_info(int device_handle, int object_handle, mtp_object_info** object_info)
+mtp_error_e mtp_db_get_object_info(int mtp_device, int object_handle, mtp_object_info** object_info)
 {
 	int ret = MTP_ERROR_NONE;
 	int sql_ret;
@@ -65,8 +65,8 @@ mtp_error_e mtp_db_get_object_info(int device_handle, int object_handle, mtp_obj
 
 	*object_info = (mtp_object_info *)malloc(sizeof(mtp_object_info));
 
-	sql = sqlite3_mprintf("SELECT * FROM %s WHERE device_handle=%d and object_handle=%d;",
-		MTP_DB_TABLE, device_handle, object_handle);
+	sql = sqlite3_mprintf("SELECT * FROM %s WHERE mtp_device=%d and object_handle=%d;",
+		MTP_DB_TABLE, mtp_device, object_handle);
 
 	if (sql != NULL && (*object_info) != NULL) {
 		sql_ret = sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);

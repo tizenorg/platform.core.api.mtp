@@ -30,7 +30,7 @@
 #define MTP_DB_TABLE "mtp_object_info"
 
 mtp_error_e mtp_db_init(void);
-mtp_error_e mtp_db_get_object_info(int device_handle, int object_handle, mtp_object_info** object_info);
+mtp_error_e mtp_db_get_object_info(int mtp_device, int object_handle, mtp_object_info** object_info);
 mtp_error_e mtp_db_deinit(void);
 
 #endif
