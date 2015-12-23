@@ -31,52 +31,62 @@ extern "C" {
  * @file mtp.h
  * @brief This file contains the MTP API
  */
-#define MTP_ERROR_CLASS TIZEN_ERROR_NETWORK_CLASS /* Need define mtp error class */
+#ifndef TIZEN_ERROR_MTP
+#define TIZEN_ERROR_MTP -0x03000000
+#endif
 
 /**
- * @brief Structure for mtp device
- * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
+ * @addtogroup CAPI_NETWORK_MTP_MANAGER_MODULE
+ * @{
  */
-typedef struct _mtp_device {
-	int bus_location;
-	char *model_name;
-} mtp_device;
 
 /**
- * @brief Structure for mtp device list
+ * @brief The handle to the mtp raw device
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  */
-typedef struct _mtp_device_list {
-	mtp_device *devices;
-	int device_num;
-} mtp_device_list;
+typedef struct mtp_raw_device *mtp_raw_device_h;
+
+/**
+ * @brief The handle to the mtp device
+ * @since_tizen 3.0
+ */
+typedef int mtp_device_h;
+
+/**
+ * @brief The handle to the mtp storage
+ * @since_tizen 3.0
+ */
+typedef int mtp_storage_h;
+
+/**
+ * @brief The handle to the mtp object
+ * @since_tizen 3.0
+ */
+typedef int mtp_object_h;
 
 /**
  * @brief Error codes reported by the MTP API.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  */
 typedef enum {
 	MTP_ERROR_NONE = TIZEN_ERROR_NONE, /**< Successful */
-	MTP_ERROR_GENERAL = MTP_ERROR_CLASS | 0x01, /**< A general error occurred */
-	MTP_ERROR_IO_ERROR = TIZEN_ERROR_IO_ERROR, /**< I/O error */
+	MTP_ERROR_IO = TIZEN_ERROR_IO_ERROR, /**< I/O error */
 	MTP_ERROR_INVALID_PARAMETER = TIZEN_ERROR_INVALID_PARAMETER, /**< Invalid parameter */
-	MTP_ERROR_NO_DEVICE = MTP_ERROR_CLASS | 0x02, /**< MTP have not any device */
-	MTP_ERROR_ALLOC_FAIL = MTP_ERROR_CLASS | 0x03, /**< Memory Allocation failed */
-	MTP_ERROR_PLUGIN = MTP_ERROR_CLASS | 0x04, /**< Plugin failed */
-	MTP_ERROR_DB = MTP_ERROR_CLASS | 0x05, /**< Plugin failed */
+	MTP_ERROR_NO_DEVICE = TIZEN_ERROR_MTP | 0x01, /**< MTP have not any device */
+	MTP_ERROR_ALLOC_FAIL = TIZEN_ERROR_MTP | 0x02, /**< Memory Allocation failed */
+	MTP_ERROR_PLUGIN = TIZEN_ERROR_MTP | 0x03, /**< Plugin failed */
 	MTP_ERROR_PERMISSION_DENIED = TIZEN_ERROR_PERMISSION_DENIED, /**< Permission denied */
-	MTP_ERROR_NOT_INITIALIZED = MTP_ERROR_CLASS | 0x06, /**< MTP is not supported */
-	MTP_ERROR_NOT_ACTIVATED = MTP_ERROR_CLASS | 0x07, /**< MTP is not activated */
+	MTP_ERROR_COMM = TIZEN_ERROR_MTP | 0x04, /**< MTP communication error */
+	MTP_ERROR_OPERATION_FAILED = TIZEN_ERROR_MTP | 0x05, /**< MTP operation is failed */
+	MTP_ERROR_NOT_INITIALIZED = TIZEN_ERROR_MTP | 0x06, /**< MTP is not initiatlized */
+	MTP_ERROR_NOT_ACTIVATED = TIZEN_ERROR_MTP | 0x07, /**< MTP is not activated */
 	MTP_ERROR_NOT_SUPPORTED = TIZEN_ERROR_NOT_SUPPORTED, /**< MTP is not supported */
+	MTP_ERROR_NOT_COMM_INITIALIZED = TIZEN_ERROR_MTP | 0x08 /**< MTP communication is not initiatlized */
 } mtp_error_e;
 
 /**
  * @brief Enumerations for MTP file type
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  */
 typedef enum {
 	MTP_FILETYPE_FOLDER, /**< FOLDER file type */
@@ -132,7 +142,6 @@ typedef enum {
 /**
  * @brief Enumerations for MTP event type
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  */
 typedef enum {
 	MTP_EVENT_UNKNOWN, /**< Unknown event type */
@@ -142,154 +151,220 @@ typedef enum {
 	MTP_EVENT_OBJECT_REMOVED, /**< Object is removed */
 	MTP_EVENT_DEVICE_ADDED, /**< Device is added */
 	MTP_EVENT_DEVICE_REMOVED, /**< Device is removed */
-	MTP_EVENT_DAEMON_TERMINATED /**< Daemon is terminated */
+	MTP_EVENT_TURNED_OFF /**< MTP is turned off */
 } mtp_event_e;
 
 /**
  * @brief Called after mtp_set_mtp_event_cb() has completed.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
- *
+ * @remarks Depending on the type of event, the meaning of event parameter is diffrent.
+ * - If event is device event, then event_parameter means a mtp device
+ * - If event is storage event, then event_parameter means a mtp storage
+ * - If event is object event, then event_parameter means a object handle
+ * - If event is MTP_EVENT_TURNED_OFF, then event_parameter is 0
  * @param [in] event The event
- * @param [in] arg The argument
+ * @param [in] event_parameter The event parameter
  * @param [in] user_data The user data passed from the callback registration function
  *
  * @see mtp_set_mtp_event_cb()
  * @see mtp_unset_mtp_event_cb()
  */
-typedef void (* mtp_event_cb)(mtp_event_e event, int arg, void *user_data);
+typedef void (* mtp_event_cb)(mtp_event_e event, int event_parameter, void *user_data);
 
 /**
  * @brief Initializes for using MTP.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  * @remarks This function must be called before proceeding any other mtp functions\n
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_PERMISSION_DENIED Permission Denied
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
  *
  * @see mtp_deinitialize()
  */
 MTP_API int mtp_initialize(void);
 
 /**
- * @brief Get device list.
+ * @brief Gets device list.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
+ * @remarks The @a raw_devices should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
  *
- * @param [out] dev_list All current device list
+ * @param [out] raw_devices All current connected device list
+ * @param [out] device_count The count of device
  */
-MTP_API int mtp_get_device_list(mtp_device_list **dev_list);
+MTP_API int mtp_get_raw_devices(mtp_raw_device_h *raw_devices, int *device_count);
 
 /**
- * @brief Get device handler from bus location
+ * @brief Gets bus location from raw device
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ *
+ * @param [out] bus_location The bus location
+ */
+MTP_API int mtp_get_bus_location(mtp_raw_device_h raw_device, int *bus_location);
+
+/**
+ * @brief Gets device number from raw device
+ * @since_tizen 3.0
+ *
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ *
+ * @param [out] device_number The device number
+ */
+MTP_API int mtp_get_device_number(mtp_raw_device_h raw_device, int *device_number);
+
+/**
+ * @brief Gets device name from raw device
+ * @since_tizen 3.0
+ * @remarks The @a model_name should be freed using free().
+ *
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ *
+ * @param [out] model_name The model name
+ */
+MTP_API int mtp_get_device_name(mtp_raw_device_h raw_device, char **model_name);
+
+/**
+ * @brief Gets device handler from bus location
+ * @since_tizen 3.0
+ * @remarks For using this api, you should get bus location and device number from raw device.
+ *
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
  *
  * @param [in] bus_location The bus location
- * @param [out] device_handle The device handle
+ * @param [out] mtp_device The MTP device
  *
+ * @pre mtp_get_bus_location(), mtp_get_device_number()
  * @see mtp_initialize()
  */
-MTP_API int mtp_get_device_handle(int bus_location, int* device_handle);
+MTP_API int mtp_get_device(int bus_location, int device_number, mtp_device_h *mtp_device);
 
 /**
- * @brief Get storage ids from device
+ * @brief Gets storage ids from device
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
+ * @remarks The @a mtp_storages should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
  *
- * @param [in] device_handle The device handle
- * @param [out] storage_id Current storage id list
- * @param [out] storage_num Length of storage id list
+ * @param [in] mtp_device The MTP device
+ * @param [out] mtp_storages Current mtp storage list
+ * @param [out] storage_num Length of storage list
  *
- * @see mtp_get_device_handle()
+ * @see mtp_get_device()
  */
-MTP_API int mtp_get_storage_ids(int device_handle, int **storage_id, int* storage_num);
+MTP_API int mtp_get_storages(mtp_device_h mtp_device, mtp_storage_h **mtp_storages, int* storage_num);
 
 /**
- * @brief Get object handles from device
+ * @brief Gets object handles from device
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
+ * @remarks The @a object_handles should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
  *
- * @param [in] device_handle The device handle
- * @param [in] storage_id The storage id
+ * @param [in] mtp_device The MTP device
+ * @param [in] mtp_storage The MTP storage
  * @param [in] format The file type what you want
- * @param [in] parent_object_handle The parent object handle
+ * @param [in] parent The parent object handle
  * @param [out] object_handles The object handle list
  * @param [out] object_num Length of object handle list
  *
- * @see mtp_get_device_handle()
- * @see mtp_get_storage_ids()
+ * @see mtp_get_device()
+ * @see mtp_get_storages()
  */
-MTP_API int mtp_get_object_handles(int device_handle, int storage_id, int format,
-	int parent_object_handle, int **object_handles, int* object_num);
+MTP_API int mtp_get_object_handles(mtp_device_h mtp_device, mtp_storage_h mtp_storage, mtp_filetype_e file_type,
+	mtp_object_h parent, mtp_object_h **object_handles, int* object_num);
 
 /**
- * @brief Delete object from device
+ * @brief Gets object from object handle
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
  *
- * @param [in] device_handle The device handle
- * @param [in] object_handle The object handle
- *
- * @see mtp_get_device_handle()
- * @see mtp_get_object_handles()
- */
-MTP_API int mtp_delete_object(int device_handle, int object_handle);
-
-/**
- * @brief Get object from object handle
- * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
- *
- * @return 0 on success, otherwise a negative error value.
- * @retval #MTP_ERROR_NONE Successful
- *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [in] dest_path The dest path
  *
- * @see mtp_get_device_handle()
+ * @see mtp_get_device()
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_get_object(int device_handle, int object_handle, char *dest_path);
+MTP_API int mtp_get_object(mtp_device_h mtp_device, mtp_object_h object_handle, char *dest_path);
 
 /**
- * @brief Get thumbnail from object handle
+ * @brief Gets thumbnail from object handle
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [in] dest_path The dest path
  *
- * @see mtp_get_device_handle()
+ * @see mtp_get_device()
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_get_thumbnail(int device_handle, int object_handle, char *dest_path);
+MTP_API int mtp_get_thumbnail(mtp_device_h mtp_device, mtp_object_h object_handle, char *dest_path);
 
 /**
  * @brief Registers a callback function for receiving MTP event.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  *
  * @detail If device state is changed, DEVICE_ADD or DEVICE_REMOVE event is occur. \n
  *   If storage state is changed, STORAGE_ADD or STORAGE_REMOVE event is occur. \n
@@ -297,21 +372,26 @@ MTP_API int mtp_get_thumbnail(int device_handle, int object_handle, char *dest_p
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
  *
  * @param [in] callback The callback
  * @param [in] user_data The user data
  *
  * @see mtp_unset_mtp_event_cb()
  */
-MTP_API int mtp_set_mtp_event_cb(mtp_event_cb callback, void *user_data);
+MTP_API int mtp_set_mtp_event_cb(mtp_event_cb event_cb, void *user_data);
 
 /**
  * @brief Unregisters the callback function.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
  *
  * @see mtp_set_mtp_event_cb()
  */
@@ -320,426 +400,691 @@ MTP_API int mtp_unset_mtp_event_cb(void);
 /**
  * @brief Deinitializes MTP operation.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_MANAGER_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_PERMISSION_DENIED Permission Denied
  *
  * @see mtp_initialize()
  */
 MTP_API int mtp_deinitialize(void);
 
 /**
- * @brief Get the manufacturer name of the device information.
+* @}
+*/
+
+/**
+ * @addtogroup CAPI_NETWORK_MTP_DEVICEINFO_MODULE
+ * @{
+ */
+
+/**
+ * @brief Gets the manufacturer name of the device information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_DEVICEINFO_MODULE
+ * @remarks The @a manufacturer_name should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [out] manufacturername The manufacturername of Device information
  *
- * @see mtp_get_device_handle()
+ * @see mtp_get_device()
  */
-MTP_API int mtp_deviceinfo_get_manufacturername(int device_handle, char **manufacturername);
+MTP_API int mtp_deviceinfo_get_manufacturer_name(mtp_device_h mtp_device, char **manufacturer_name);
 
 /**
- * @brief Get the model name of the device information.
+ * @brief Gets the model name of the device information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_DEVICEINFO_MODULE
+ * @remarks The @a model_name should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [out] modelname The modelname of Device information
  *
- * @see mtp_get_device_handle()
+ * @see mtp_get_device()
  */
-MTP_API int mtp_deviceinfo_get_modelname(int device_handle, char **modelname);
+MTP_API int mtp_deviceinfo_get_model_name(mtp_device_h mtp_device, char **model_name);
 
 /**
- * @brief Get the serial number of the device information.
+ * @brief Gets the serial number of the device information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_DEVICEINFO_MODULE
+ * @remarks The @a serial_number should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [out] serialnumber The serialnumber of Device information
  *
- * @see mtp_get_device_handle()
+ * @see mtp_get_device()
  */
-MTP_API int mtp_deviceinfo_get_serialnumber(int device_handle, char **serialnumber);
+MTP_API int mtp_deviceinfo_get_serial_number(mtp_device_h mtp_device, char **serial_number);
 
 /**
- * @brief Get the device version of the device information.
+ * @brief Gets the device version of the device information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_DEVICEINFO_MODULE
+ * @remarks The @a device_version should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @param [in] device_handle The device handle
- * @param [out] serialnumber The deviceversion of Device information
+ * @param [in] mtp_device The MTP device
+ * @param [out] device_version The device version of Device information
  *
- * @see mtp_get_device_handle()
+ * @see mtp_get_device()
  */
-MTP_API int mtp_deviceinfo_get_deviceversion(int device_handle, char **deviceversion);
+MTP_API int mtp_deviceinfo_get_device_version(mtp_device_h mtp_device, char **device_version);
 
 /**
- * @brief Get the description of the storage information.
+* @}
+*/
+
+/**
+ * @addtogroup CAPI_NETWORK_MTP_STORAGEINFO_MODULE
+ * @{
+ */
+
+/**
+ * @brief Gets the description of the storage information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_STORAGEINFO_MODULE
+ * @remarks The @a description should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @param [in] device_handle The device handle
- * @param [in] storage_id The storage id
+ * @param [in] mtp_device The MTP device
+ * @param [in] mtp_storage The MTP storage
  * @param [out] description The description of Storage information
  *
- * @see mtp_get_storage_ids()
+ * @see mtp_get_storages()
  */
-MTP_API int mtp_storageinfo_get_description(int device_handle, int storage_id, char **description);
+MTP_API int mtp_storageinfo_get_description(mtp_device_h mtp_device, mtp_storage_h mtp_storage, char **description);
 
 /**
- * @brief Get the freespace of the storage information.
+ * @brief Gets the freespace of the storage information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_STORAGEINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @param [in] device_handle The device handle
- * @param [in] storage_id The storage id
- * @param [out] freespace The freespace of Storage information
+ * @param [in] mtp_device The MTP device
+ * @param [in] mtp_storage The MTP storage
+ * @param [out] free_space The free space of Storage information
  *
- * @see mtp_get_storage_ids()
+ * @see mtp_get_storages()
  */
-MTP_API int mtp_storageinfo_get_freespace(int device_handle, int storage_id, unsigned long long *freespace);
+MTP_API int mtp_storageinfo_get_free_space(mtp_device_h mtp_device, mtp_storage_h mtp_storage, unsigned long long *free_space);
 
 /**
- * @brief Get the max capacity of the storage information.
+ * @brief Gets the max capacity of the storage information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_STORAGEINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @param [in] device_handle The device handle
- * @param [in] storage_id The storage id
- * @param [out] maxcapacity The maxcapacity of Storage information
+ * @param [in] mtp_device The MTP device
+ * @param [in] mtp_storage The MTP storage
+ * @param [out] max_capacity The max capacity of Storage information
  *
- * @see mtp_get_storage_ids()
+ * @see mtp_get_storages()
  */
-MTP_API int mtp_storageinfo_get_maxcapacity(int device_handle, int storage_id, unsigned long long *maxcapacity);
+MTP_API int mtp_storageinfo_get_max_capacity(mtp_device_h mtp_device, mtp_storage_h mtp_storage, unsigned long long *max_capacity);
 
 /**
- * @brief Get the storage type of the storage information.
+ * @brief Gets the storage type of the storage information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_STORAGEINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @param [in] device_handle The device handle
- * @param [in] storage_id The storage id
- * @param [out] storagetype The storagetype of Storage information
+ * @param [in] mtp_device The MTP device
+ * @param [in] mtp_storage The MTP storage
+ * @param [out] storage_type The storage type of Storage information
  *
- * @see mtp_get_storage_ids()
+ * @see mtp_get_storages()
  */
-MTP_API int mtp_storageinfo_get_storagetype(int device_handle, int storage_id, int *storagetype);
+MTP_API int mtp_storageinfo_get_storage_type(mtp_device_h mtp_device, mtp_storage_h mtp_storage, int *storage_type);
 
 /**
- * @brief Get the volumeidentifier of the storage information.
+ * @brief Gets the volumeidentifier of the storage information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_STORAGEINFO_MODULE
+ * @remarks The @a volume_identifier should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @param [in] device_handle The device handle
- * @param [in] storage_id The storage id
- * @param [out] volumeidentifier The volumeidentifier of Storage information
+ * @param [in] mtp_device The MTP device
+ * @param [in] mtp_storage The MTP storage
+ * @param [out] volume_identifier The volume identifier of Storage information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_storageinfo_get_volumeidentifier(int device_handle, int storage_id, char **volumeidentifier);
+MTP_API int mtp_storageinfo_get_volume_identifier(mtp_device_h mtp_device, mtp_storage_h mtp_storage, char **volume_identifier);
 
 /**
- * @brief Get the filename of the object information.
+* @}
+*/
+
+/**
+ * @addtogroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
+ * @{
+ */
+
+/**
+ * @brief Gets the filename of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
+ * @remarks The @a file_name should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] filename The filename of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_filename(int device_handle, int object_handle, char **filename);
+MTP_API int mtp_objectinfo_get_file_name(mtp_device_h mtp_device, mtp_object_h object_handle, char **file_name);
 
 /**
- * @brief Get the keywords of the object information.
+ * @brief Gets the keywords of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
+ * @remarks The @a keywords should be freed using free().
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] keywords The keywords of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_keywords(int device_handle, int object_handle, char **keywords);
+MTP_API int mtp_objectinfo_get_keywords(mtp_device_h mtp_device, mtp_object_h object_handle, char **keywords);
 
 /**
- * @brief Get the association desc of the object information.
+ * @brief Gets the association desc of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] asso_desc The association description of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_association_desc(int device_handle, int object_handle, int *asso_desc);
+MTP_API int mtp_objectinfo_get_association_desc(mtp_device_h mtp_device, mtp_object_h object_handle, int *asso_desc);
 
 /**
- * @brief Get the association type of the object information.
+ * @brief Gets the association type of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] asso_type The association type of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_association_type(int device_handle, int object_handle, int *asso_type);
+MTP_API int mtp_objectinfo_get_association_type(mtp_device_h mtp_device, mtp_object_h object_handle, int *asso_type);
 
 /**
- * @brief Get the size of the object information.
+ * @brief Gets the size of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] size The size of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_size(int device_handle, int object_handle, int *size);
+MTP_API int mtp_objectinfo_get_size(mtp_device_h mtp_device, mtp_object_h object_handle, int *size);
 
 /**
- * @brief Get the parent object handle of the object information.
+ * @brief Gets the parent object handle of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] parent_object_handle The parent of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_parent_object_handle(int device_handle, int object_handle, int *parent_object_handle);
+MTP_API int mtp_objectinfo_get_parent_object_handle(mtp_device_h mtp_device, mtp_object_h object_handle, mtp_object_h *parent_object_handle);
 
 /**
- * @brief Get the storage id of the object information.
+ * @brief Gets the storage id of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
- * @param [out] storage_id The storage id of Object information
+ * @param [out] mtp_storage The MTP storage of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_storage_id(int device_handle, int object_handle, int *storage_id);
+MTP_API int mtp_objectinfo_get_storage(mtp_device_h mtp_device, mtp_object_h object_handle, mtp_storage_h* mtp_storage);
 
 /**
- * @brief Get the data created time of the object information.
+ * @brief Gets the data created time of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] data_created The data created time of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_data_created(int device_handle, int object_handle, int *data_created);
+MTP_API int mtp_objectinfo_get_data_created(mtp_device_h mtp_device, mtp_object_h object_handle, int *data_created);
 
 /**
- * @brief Get the data modified time of the object information.
+ * @brief Gets the data modified time of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] data_modified The data modified time of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_data_modified(int device_handle, int object_handle, int *data_modified);
+MTP_API int mtp_objectinfo_get_data_modified(mtp_device_h mtp_device, mtp_object_h object_handle, int *data_modified);
 
 /**
- * @brief Get the format of the object information.
+ * @brief Gets the format of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] format The image format of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_format(int device_handle, int object_handle, int *format);
+MTP_API int mtp_objectinfo_get_format(mtp_device_h mtp_device, mtp_object_h object_handle, int *format);
 
 /**
- * @brief Get the image pix depth of the object information.
+ * @brief Gets the image pix depth of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] depth The image pixel depth of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_image_pix_depth(int device_handle, int object_handle, int *depth);
+MTP_API int mtp_objectinfo_get_image_pix_depth(mtp_device_h mtp_device, mtp_object_h object_handle, int *depth);
 
 /**
- * @brief Get the image pix width of the object information.
+ * @brief Gets the image pix width of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] width The image pixel width of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_image_pix_width(int device_handle, int object_handle, int *width);
+MTP_API int mtp_objectinfo_get_image_pix_width(mtp_device_h mtp_device, mtp_object_h object_handle, int *width);
 
 /**
- * @brief Get the image pix height of the object information.
+ * @brief Gets the image pix height of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] height The image pixel height of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_image_pix_height(int device_handle, int object_handle, int *height);
+MTP_API int mtp_objectinfo_get_image_pix_height(mtp_device_h mtp_device, mtp_object_h object_handle, int *height);
 
 /**
- * @brief Get the thumbnail size of the object information.
+ * @brief Gets the thumbnail size of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] size The thumbnail size of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_thumbnail_size(int device_handle, int object_handle, int *size);
+MTP_API int mtp_objectinfo_get_thumbnail_size(mtp_device_h mtp_device, mtp_object_h object_handle, int *size);
 
 /**
- * @brief Get the thumbnail format of the object information.
+ * @brief Gets the thumbnail format of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] format The thumbnail format of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_thumbnail_format(int device_handle, int object_handle, int *format);
+MTP_API int mtp_objectinfo_get_thumbnail_format(mtp_device_h mtp_device, mtp_object_h object_handle, int *format);
 
 /**
- * @brief Get the thumbnail pix height of the object information.
+ * @brief Gets the thumbnail pix height of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] height The thumbnail pixel height of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_thumbnail_pix_height(int device_handle, int object_handle, int *height);
+MTP_API int mtp_objectinfo_get_thumbnail_pix_height(mtp_device_h mtp_device, mtp_object_h object_handle, int *height);
 
 /**
- * @brief Get the thumbnail pix width of the object information.
+ * @brief Gets the thumbnail pix width of the object information.
  * @since_tizen 3.0
- * @ingroup CAPI_NETWORK_MTP_OBJECTINFO_MODULE
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
+ * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
+ * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initiatlized
+ * @retval #MTP_ERROR_COMM MTP communication error
+ * @retval #MTP_ERROR_CONTROLLER MTP controller error
+ * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
+ * @retval #MTP_ERROR_PLUGIN Plugin failed
  *
- * @param [in] device_handle The device handle
+ * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
  * @param [out] width The thumbnail pixel width of Object information
  *
  * @see mtp_get_object_handles()
  */
-MTP_API int mtp_objectinfo_get_thumbnail_pix_width(int device_handle, int object_handle, int *width);
+MTP_API int mtp_objectinfo_get_thumbnail_pix_width(mtp_device_h mtp_device, mtp_object_h object_handle, int *width);
+
+/**
+* @}
+*/
 
 #ifdef __cplusplus
 }
