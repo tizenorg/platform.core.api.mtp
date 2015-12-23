@@ -49,7 +49,9 @@ typedef struct _mtp_object_info {
 }mtp_object_info;
 
 /* internal api */
-MTP_API int mtp_objectinfo_get_object_info(int device_handle, int object_handle, mtp_object_info **object_info);
+int mtp_objectinfo_get_object_info(int mtp_device, int object_handle, mtp_object_info **object_info);
+
+int mtp_delete_object(mtp_device_h mtp_device, mtp_object_h object_handle);
 
 #ifdef __cplusplus
 }

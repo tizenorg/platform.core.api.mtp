@@ -21,6 +21,7 @@
 #include <gio/gio.h>
 
 #include "mtp.h"
+#include "mtp_private.h"
 #include "mtp_gdbuslib.h"
 
 #define MTP_DBUS_SERVICE			"org.tizen.mtp"
