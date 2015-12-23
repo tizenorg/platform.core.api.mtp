@@ -22,9 +22,9 @@
 void mtp_gdbus_objectinfo_proxy_init(void);
 void mtp_gdbus_objectinfo_proxy_deinit(void);
 
-int mtp_gdbus_objectinfo_get_property(int device_handle,
+int mtp_gdbus_objectinfo_get_property(int mtp_device,
 	int object_handle, int property, int *property_value);
-int mtp_gdbus_objectinfo_get_property_string(int device_handle,
+int mtp_gdbus_objectinfo_get_property_string(int mtp_device,
 	int object_handle, int property, char **property_value);
 
 #endif
