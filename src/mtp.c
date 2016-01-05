@@ -890,7 +890,7 @@ int mtp_objectinfo_get_image_pix_width(int mtp_device,
 	/* precondition check end */
 
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
-		object_handle, MTP_PROPERTY_IMAGE_FIX_WIDTH, width);
+		object_handle, MTP_PROPERTY_IMAGE_PIX_WIDTH, width);
 
 	_END();
 
@@ -914,7 +914,7 @@ int mtp_objectinfo_get_image_pix_height(int mtp_device,
 	/* precondition check end */
 
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
-		object_handle, MTP_PROPERTY_IMAGE_FIX_HEIGHT, height);
+		object_handle, MTP_PROPERTY_IMAGE_PIX_HEIGHT, height);
 
 	_END();
 
