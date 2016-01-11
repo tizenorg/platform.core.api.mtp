@@ -566,7 +566,7 @@ int storageinfo_test_get_maxcapacity(void)
 int storageinfo_test_get_storagetype(void)
 {
 	int ret = 0;
-	int value = 0;
+	mtp_storage_type_e value = 0;
 	BEGIN();
 
 	ret = mtp_storageinfo_get_storage_type(mtp_device, mtp_storage, &value);

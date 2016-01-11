@@ -606,7 +606,7 @@ int mtp_storageinfo_get_max_capacity(int mtp_device, int mtp_storage, unsigned l
 	return ret;
 }
 
-int mtp_storageinfo_get_storage_type(int mtp_device, int mtp_storage, int *storage_type)
+int mtp_storageinfo_get_storage_type(int mtp_device, int mtp_storage, mtp_storage_type_e *storage_type)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -622,7 +622,7 @@ int mtp_storageinfo_get_storage_type(int mtp_device, int mtp_storage, int *stora
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_storagetype(mtp_device, mtp_storage, storage_type);
+	ret = mtp_gdbus_storageinfo_get_storagetype(mtp_device, mtp_storage, (int *)storage_type);
 
 	TC_PRT("storagetype %d", *storage_type);
 

@@ -81,6 +81,19 @@ typedef enum {
 } mtp_error_e;
 
 /**
+ * @brief Enumerations for MTP Storage type
+ * @since_tizen 3.0
+ */
+
+typedef enum {
+	MTP_STORAGE_TYPE_UNDEFINED, /**< Storage type is undefined */
+	MTP_STORAGE_TYPE_FIXED_ROM, /**< Storage type is fixed ROM */
+	MTP_STORAGE_TYPE_REMOVABLE_ROM, /**< Storage type is removable ROM */
+	MTP_STORAGE_TYPE_FIXED_RAM, /**< Storage type is fixed RAM */
+	MTP_STORAGE_TYPE_REMOVABLE_RAM /**< Storage type is Removable RAM */
+} mtp_storage_type_e;
+
+/**
  * @brief Enumerations for MTP file type
  * @since_tizen 3.0
  */
@@ -652,7 +665,7 @@ int mtp_storageinfo_get_max_capacity(mtp_device_h mtp_device, mtp_storage_h mtp_
  *
  * @see mtp_get_storages()
  */
-int mtp_storageinfo_get_storage_type(mtp_device_h mtp_device, mtp_storage_h mtp_storage, int *storage_type);
+int mtp_storageinfo_get_storage_type(mtp_device_h mtp_device, mtp_storage_h mtp_storage, mtp_storage_type_e *storage_type);
 
 /**
  * @brief Gets the volume identifier of the storage information.
@@ -868,6 +881,8 @@ int mtp_objectinfo_get_storage(mtp_device_h mtp_device, mtp_object_h object_hand
 /**
  * @brief Gets the data created time of the object information.
  * @since_tizen 3.0
+ * @remarks When interpreted as an absolute time value, \n
+ * @a data_created represents the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC).
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -893,6 +908,8 @@ int mtp_objectinfo_get_data_created(mtp_device_h mtp_device, mtp_object_h object
 /**
  * @brief Gets the data modified time of the object information.
  * @since_tizen 3.0
+ * @remarks When interpreted as an absolute time value, \n
+ * @a data_modified represents the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC).
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
