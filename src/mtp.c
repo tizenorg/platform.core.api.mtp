@@ -778,7 +778,7 @@ int mtp_objectinfo_get_size(int mtp_device, int object_handle, int *size)
 	return ret;
 }
 
-int mtp_objectinfo_get_data_created(int mtp_device,
+int mtp_objectinfo_get_date_created(int mtp_device,
 	int object_handle, int *data_created)
 {
 	int ret = MTP_ERROR_NONE;
@@ -795,14 +795,14 @@ int mtp_objectinfo_get_data_created(int mtp_device,
 	/* precondition check end */
 
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
-		object_handle, MTP_PROPERTY_DATA_CREATED, data_created);
+		object_handle, MTP_PROPERTY_DATE_CREATED, data_created);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_objectinfo_get_data_modified(int mtp_device,
+int mtp_objectinfo_get_date_modified(int mtp_device,
 	int object_handle, int *data_modified)
 {
 	int ret = MTP_ERROR_NONE;
@@ -819,7 +819,7 @@ int mtp_objectinfo_get_data_modified(int mtp_device,
 	/* precondition check end */
 
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
-		object_handle, MTP_PROPERTY_DATA_MODIFIED, data_modified);
+		object_handle, MTP_PROPERTY_DATE_MODIFIED, data_modified);
 
 	_END();
 

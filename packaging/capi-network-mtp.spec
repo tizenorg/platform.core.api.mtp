@@ -1,6 +1,6 @@
 Name:       capi-network-mtp
 Summary:    A MTP library in Native API
-Version:    1.3.3
+Version:    1.3.4
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0

@@ -684,7 +684,7 @@ int objectinfo_test_get_storage_id(void)
 	return ret;
 }
 
-int objectinfo_test_get_data_created(void)
+int objectinfo_test_get_date_created(void)
 {
 	int i;
 	int ret = 0;
@@ -695,7 +695,7 @@ int objectinfo_test_get_data_created(void)
 	list_max = (obj_count < TEST_LIST_MAX) ? obj_count : TEST_LIST_MAX;
 
 	for (i = 0; i < list_max; i++) {
-		ret = mtp_objectinfo_get_data_created(mtp_device, mtp_objects[i], &value);
+		ret = mtp_objectinfo_get_date_created(mtp_device, mtp_objects[i], &value);
 		TC_PRT("ret[%d]: object id[%d] mtp_device[%d]", ret, mtp_objects[i], value);
 	}
 
@@ -703,7 +703,7 @@ int objectinfo_test_get_data_created(void)
 	return ret;
 }
 
-int objectinfo_test_get_data_modified(void)
+int objectinfo_test_get_date_modified(void)
 {
 	int i;
 	int ret = 0;
@@ -714,8 +714,8 @@ int objectinfo_test_get_data_modified(void)
 	list_max = (obj_count < TEST_LIST_MAX) ? obj_count : TEST_LIST_MAX;
 
 	for (i = 0; i < list_max; i++) {
-		ret = mtp_objectinfo_get_data_modified(mtp_device, mtp_objects[i], &value);
-		TC_PRT("ret[%d]: object id[%d] data_modified[%d]", ret, mtp_objects[i], value);
+		ret = mtp_objectinfo_get_date_modified(mtp_device, mtp_objects[i], &value);
+		TC_PRT("ret[%d]: object id[%d] date_modified[%d]", ret, mtp_objects[i], value);
 	}
 
 	END();
@@ -1099,8 +1099,8 @@ tc_table_t tc_table[] = {
 	{"mtp_objectinfo_get_association_desc",		19,	objectinfo_test_get_association_desc},
 	{"mtp_objectinfo_get_association_type",		20,	objectinfo_test_get_association_type},
 	{"mtp_objectinfo_get_size",					21,	objectinfo_test_get_size},
-	{"mtp_objectinfo_get_data_created",			22,	objectinfo_test_get_data_created},
-	{"mtp_objectinfo_get_data_modified",		23,	objectinfo_test_get_data_modified},
+	{"mtp_objectinfo_get_date_created",			22,	objectinfo_test_get_date_created},
+	{"mtp_objectinfo_get_date_modified",		23,	objectinfo_test_get_date_modified},
 	{"mtp_objectinfo_get_file_type",				24,	objectinfo_test_get_file_type},
 	{"mtp_objectinfo_get_image_pix_depth",		25,	objectinfo_test_get_image_bit_depth},
 	{"mtp_objectinfo_get_image_pix_width",		26,	objectinfo_test_get_image_pix_width},

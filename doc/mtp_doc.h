@@ -47,6 +47,23 @@
  *		<td> Provide functions to gets the object information of certain file in MTP responder</td>
  *	</tr>
  * </table>
+ *
+ * MTP is consist of three components :
+ * 1. MTP device
+ * -  Meaning that the device supports MTP.
+ * -  Having mtp-responder role.
+ * -  Having one or more MTP storages.
+ *
+ * 2. MTP storage
+ * -  Meaning that the storage in the mtp device.
+ * -  Having zero or more MTP objects.
+ *
+ * 3. MTP object
+ * -  MTP object meaning is the actual file.
+ * -  Each file in the device has a unique handle called "Object Handle".
+ *    This is not a unique handle each storage.
+ * -  Mtp object is to have the parent object, so it can indicate a file hierarchy.
+ *    If parent object is 0, then it means object is in root of storage.
  **/
 
 /**

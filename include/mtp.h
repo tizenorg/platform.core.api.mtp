@@ -69,15 +69,15 @@ typedef enum {
 	MTP_ERROR_IO_ERROR = TIZEN_ERROR_IO_ERROR, /**< I/O error */
 	MTP_ERROR_INVALID_PARAMETER = TIZEN_ERROR_INVALID_PARAMETER, /**< Invalid parameter */
 	MTP_ERROR_NO_DEVICE = TIZEN_ERROR_MTP | 0x01, /**< MTP have not any device */
-	MTP_ERROR_ALLOC_FAIL = TIZEN_ERROR_MTP | 0x02, /**< Memory Allocation failed */
-	MTP_ERROR_PLUGIN_FAIL = TIZEN_ERROR_MTP | 0x03, /**< Plugin failed */
+	MTP_ERROR_OUT_OF_MEMORY = TIZEN_ERROR_OUT_OF_MEMORY, /**< Out of memory */
+	MTP_ERROR_PLUGIN_FAIL = TIZEN_ERROR_MTP | 0x02, /**< Plugin failed */
 	MTP_ERROR_PERMISSION_DENIED = TIZEN_ERROR_PERMISSION_DENIED, /**< Permission denied */
-	MTP_ERROR_COMM_ERROR = TIZEN_ERROR_MTP | 0x04, /**< MTP communication error */
-	MTP_ERROR_CONTROLLER = TIZEN_ERROR_MTP | 0x05, /**< MTP controller error */
-	MTP_ERROR_NOT_INITIALIZED = TIZEN_ERROR_MTP | 0x06, /**< MTP is not initialized */
-	MTP_ERROR_NOT_ACTIVATED = TIZEN_ERROR_MTP | 0x07, /**< MTP is not activated */
+	MTP_ERROR_COMM_ERROR = TIZEN_ERROR_MTP | 0x03, /**< MTP communication error */
+	MTP_ERROR_CONTROLLER = TIZEN_ERROR_MTP | 0x04, /**< MTP controller error */
+	MTP_ERROR_NOT_INITIALIZED = TIZEN_ERROR_MTP | 0x05, /**< MTP is not initialized */
+	MTP_ERROR_NOT_ACTIVATED = TIZEN_ERROR_MTP | 0x06, /**< MTP is not activated */
 	MTP_ERROR_NOT_SUPPORTED = TIZEN_ERROR_NOT_SUPPORTED, /**< MTP is not supported */
-	MTP_ERROR_NOT_COMM_INITIALIZED = TIZEN_ERROR_MTP | 0x08 /**< MTP communication is not initialized */
+	MTP_ERROR_NOT_COMM_INITIALIZED = TIZEN_ERROR_MTP | 0x07, /**< MTP communication is not initialized */
 } mtp_error_e;
 
 /**
@@ -348,7 +348,7 @@ int mtp_get_device(int bus_location, int device_number, mtp_device_h *mtp_device
 int mtp_get_storages(mtp_device_h mtp_device, mtp_storage_h **mtp_storages, int* storage_num);
 
 /**
- * @brief Gets object handles from device.
+ * @brief Gets object handles from the given device and storage.
  * @since_tizen 3.0
  * @remarks The @a object_handles should be freed using free().
  * @remarks If the @a parent is 0, it means "root folder" of mtp storage.
@@ -431,9 +431,10 @@ int mtp_get_thumbnail(mtp_device_h mtp_device, mtp_object_h object_handle, char 
  * @brief Registers a callback function for receiving MTP event.
  * @since_tizen 3.0
  *
- * @remarks If device state is changed, DEVICE_ADD or DEVICE_REMOVE event is occur. \n
- * If storage state is changed, STORAGE_ADD or STORAGE_REMOVE event is occur. \n
- * If object state is changed, OBJECT_ADD or OBJECT_REMOVE event is occur.
+ * @remarks If device state is changed, #MTP_EVENT_DEVICE_ADDED or #MTP_EVENT_DEVICE_REMOVED event is occur. \n
+ * If storage state is changed, #MTP_EVENT_STORAGE_ADDED or #MTP_EVENT_STORAGE_REMOVED event is occur. \n
+ * If object state is changed, #MTP_EVENT_OBJECT_ADDED or #MTP_EVENT_OBJECT_REMOVED event is occur. \n
+ * If mtp service is turned off, #MTP_EVENT_TURNED_OFF event is occur. \n
  * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
  * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
@@ -508,7 +509,7 @@ int mtp_deinitialize(void);
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Memory Allocation failed
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
  * @see mtp_get_device()
@@ -534,7 +535,7 @@ int mtp_deviceinfo_get_manufacturer_name(mtp_device_h mtp_device, char **manufac
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
  * @see mtp_get_device()
@@ -560,7 +561,7 @@ int mtp_deviceinfo_get_model_name(mtp_device_h mtp_device, char **model_name);
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
  * @see mtp_get_device()
@@ -586,7 +587,7 @@ int mtp_deviceinfo_get_serial_number(mtp_device_h mtp_device, char **serial_numb
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
  * @see mtp_get_device()
@@ -622,7 +623,7 @@ int mtp_deviceinfo_get_device_version(mtp_device_h mtp_device, char **device_ver
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
  * @see mtp_get_storages()
@@ -648,7 +649,7 @@ int mtp_storageinfo_get_description(mtp_device_h mtp_device, mtp_storage_h mtp_s
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
  * @see mtp_get_storages()
@@ -674,7 +675,7 @@ int mtp_storageinfo_get_free_space(mtp_device_h mtp_device, mtp_storage_h mtp_st
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
  * @see mtp_get_storages()
@@ -700,7 +701,7 @@ int mtp_storageinfo_get_max_capacity(mtp_device_h mtp_device, mtp_storage_h mtp_
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
  * @see mtp_get_storages()
@@ -727,7 +728,7 @@ int mtp_storageinfo_get_storage_type(mtp_device_h mtp_device, mtp_storage_h mtp_
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
  * @see mtp_get_object_handles()
@@ -763,7 +764,7 @@ int mtp_storageinfo_get_volume_identifier(mtp_device_h mtp_device, mtp_storage_h
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -775,6 +776,7 @@ int mtp_objectinfo_get_file_name(mtp_device_h mtp_device, mtp_object_h object_ha
  * @brief Gets the keywords of the object information.
  * @since_tizen 3.0
  * @remarks The @a keywords should be freed using free().
+ * @remarks The keywords are separated by comma.
  * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
  * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
@@ -791,7 +793,7 @@ int mtp_objectinfo_get_file_name(mtp_device_h mtp_device, mtp_object_h object_ha
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -818,7 +820,7 @@ int mtp_objectinfo_get_keywords(mtp_device_h mtp_device, mtp_object_h object_han
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -845,7 +847,7 @@ int mtp_objectinfo_get_association_desc(mtp_device_h mtp_device, mtp_object_h ob
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -872,7 +874,7 @@ int mtp_objectinfo_get_association_type(mtp_device_h mtp_device, mtp_object_h ob
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -899,7 +901,7 @@ int mtp_objectinfo_get_size(mtp_device_h mtp_device, mtp_object_h object_handle,
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -926,7 +928,7 @@ int mtp_objectinfo_get_parent_object_handle(mtp_device_h mtp_device, mtp_object_
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -935,7 +937,7 @@ int mtp_objectinfo_get_parent_object_handle(mtp_device_h mtp_device, mtp_object_
 int mtp_objectinfo_get_storage(mtp_device_h mtp_device, mtp_object_h object_handle, mtp_storage_h* mtp_storage);
 
 /**
- * @brief Gets the data created time of the object information.
+ * @brief Gets the object created time of the object information.
  * @since_tizen 3.0
  * @remarks When interpreted as an absolute time value, \n
  * @a data_created represents the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC).
@@ -944,7 +946,7 @@ int mtp_objectinfo_get_storage(mtp_device_h mtp_device, mtp_object_h object_hand
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
- * @param [out] data_created The data created time of Object information
+ * @param [out] date_created The object created time of Object information
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
@@ -955,16 +957,16 @@ int mtp_objectinfo_get_storage(mtp_device_h mtp_device, mtp_object_h object_hand
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
  * @see mtp_get_object_handles()
  */
-int mtp_objectinfo_get_data_created(mtp_device_h mtp_device, mtp_object_h object_handle, int *data_created);
+int mtp_objectinfo_get_date_created(mtp_device_h mtp_device, mtp_object_h object_handle, int *date_created);
 
 /**
- * @brief Gets the data modified time of the object information.
+ * @brief Gets the object modified time of the object information.
  * @since_tizen 3.0
  * @remarks When interpreted as an absolute time value, \n
  * @a data_modified represents the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC).
@@ -973,7 +975,7 @@ int mtp_objectinfo_get_data_created(mtp_device_h mtp_device, mtp_object_h object
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
- * @param [out] data_modified The data modified time of Object information
+ * @param [out] date_modified The object modified time of Object information
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
@@ -984,13 +986,13 @@ int mtp_objectinfo_get_data_created(mtp_device_h mtp_device, mtp_object_h object
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
  * @see mtp_get_object_handles()
  */
-int mtp_objectinfo_get_data_modified(mtp_device_h mtp_device, mtp_object_h object_handle, int *data_modified);
+int mtp_objectinfo_get_date_modified(mtp_device_h mtp_device, mtp_object_h object_handle, int *date_modified);
 
 /**
  * @brief Gets the file type of the object information.
@@ -1011,7 +1013,7 @@ int mtp_objectinfo_get_data_modified(mtp_device_h mtp_device, mtp_object_h objec
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -1038,7 +1040,7 @@ int mtp_objectinfo_get_file_type(mtp_device_h mtp_device, mtp_object_h object_ha
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -1065,7 +1067,7 @@ int mtp_objectinfo_get_image_bit_depth(mtp_device_h mtp_device, mtp_object_h obj
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -1092,7 +1094,7 @@ int mtp_objectinfo_get_image_pix_width(mtp_device_h mtp_device, mtp_object_h obj
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -1119,7 +1121,7 @@ int mtp_objectinfo_get_image_pix_height(mtp_device_h mtp_device, mtp_object_h ob
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -1146,7 +1148,7 @@ int mtp_objectinfo_get_thumbnail_size(mtp_device_h mtp_device, mtp_object_h obje
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -1173,7 +1175,7 @@ int mtp_objectinfo_get_thumbnail_file_type(mtp_device_h mtp_device, mtp_object_h
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
@@ -1200,7 +1202,7 @@ int mtp_objectinfo_get_thumbnail_pix_height(mtp_device_h mtp_device, mtp_object_
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_CONTROLLER MTP controller error
- * @retval #MTP_ERROR_ALLOC_FAIL Memory Allocation failed
+ * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  * @retval #MTP_ERROR_PLUGIN_FAIL Plugin failed
  *
