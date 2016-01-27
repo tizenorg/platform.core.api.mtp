@@ -22,9 +22,11 @@
 void mtp_gdbus_deviceinfo_proxy_init(void);
 void mtp_gdbus_deviceinfo_proxy_deinit(void);
 
-mtp_error_e mtp_gdbus_deviceinfo_get_manufacturername(int mtp_handle, char **manufacturername);
-mtp_error_e mtp_gdbus_deviceinfo_get_modelname(int mtp_handle, char **modelname);
-mtp_error_e mtp_gdbus_deviceinfo_get_serialnumber(int mtp_handle, char **serialnumber);
-mtp_error_e mtp_gdbus_deviceinfo_get_deviceversion(int mtp_handle, char **deviceversion);
+mtp_error_e mtp_gdbus_deviceinfo_get_manufacturer_name(int mtp_device, char **manufacturername);
+mtp_error_e mtp_gdbus_deviceinfo_get_model_name(int mtp_device, char **modelname);
+mtp_error_e mtp_gdbus_deviceinfo_get_serial_number(int mtp_device, char **serialnumber);
+mtp_error_e mtp_gdbus_deviceinfo_get_device_version(int mtp_device, char **deviceversion);
+mtp_error_e mtp_gdbus_deviceinfo_get_bus_location(int mtp_device, int *bus_location);
+mtp_error_e mtp_gdbus_deviceinfo_get_device_number(int mtp_device, int *device_number);
 
 #endif
