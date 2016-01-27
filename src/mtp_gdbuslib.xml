@@ -4,16 +4,9 @@
 
 <node>
 	<interface name="org.tizen.mtp.manager">
-		<method name="GetRawDevices">
-			<arg type="i" name="device_count" direction="out" />
-			<arg type="aa{sv}" name="raw_devices" direction="out" />
-			<arg type="i" name="result" direction="out" />
-		</method>
-
-		<method name="GetDevice">
-			<arg type="i" name="bus_location" direction="in" />
-			<arg type="i" name="device_number" direction="in" />
-			<arg type="i" name="mtp_device" direction="out" />
+		<method name="GetDevices">
+			<arg type="i" name="device_num" direction="out" />
+			<arg type="aa{sv}" name="mtp_devices" direction="out" />
 			<arg type="i" name="result" direction="out" />
 		</method>
 
@@ -60,27 +53,39 @@
 		</signal>
 	</interface>
 	<interface name="org.tizen.mtp.deviceinfo">
-		<method name="GetManufacturername">
+		<method name="GetManufacturerName">
 			<arg type="i" name="mtp_device" direction="in" />
 			<arg type="s" name="manufacturer_name" direction="out" />
 			<arg type="i" name="result" direction="out" />
 		</method>
 
-		<method name="GetModelname">
+		<method name="GetModelName">
 			<arg type="i" name="mtp_device" direction="in" />
 			<arg type="s" name="model_name" direction="out" />
 			<arg type="i" name="result" direction="out" />
 		</method>
 
-		<method name="GetSerialnumber">
+		<method name="GetSerialNumber">
 			<arg type="i" name="mtp_device" direction="in" />
 			<arg type="s" name="serial_number" direction="out" />
 			<arg type="i" name="result" direction="out" />
 		</method>
 
-		<method name="GetDeviceversion">
+		<method name="GetDeviceVersion">
 			<arg type="i" name="mtp_device" direction="in" />
 			<arg type="s" name="device_version" direction="out" />
+			<arg type="i" name="result" direction="out" />
+		</method>
+
+		<method name="GetBusLocation">
+			<arg type="i" name="mtp_device" direction="in" />
+			<arg type="i" name="bus_location" direction="out" />
+			<arg type="i" name="result" direction="out" />
+		</method>
+
+		<method name="GetDeviceId">
+			<arg type="i" name="mtp_device" direction="in" />
+			<arg type="i" name="device_id" direction="out" />
 			<arg type="i" name="result" direction="out" />
 		</method>
 	</interface>

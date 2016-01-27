@@ -34,7 +34,7 @@ void mtp_gdbus_deviceinfo_proxy_deinit(void)
 	deviceinfo_proxy = NULL;
 }
 
-mtp_error_e mtp_gdbus_deviceinfo_get_manufacturername(int mtp_device, char **manufacturername)
+mtp_error_e mtp_gdbus_deviceinfo_get_manufacturer_name(int mtp_device, char **manufacturer_name)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
@@ -42,10 +42,10 @@ mtp_error_e mtp_gdbus_deviceinfo_get_manufacturername(int mtp_device, char **man
 	if (deviceinfo_proxy == NULL)
 			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
-	if (mtp_gdbuslib_deviceinfo_call_get_manufacturername_sync(
+	if (mtp_gdbuslib_deviceinfo_call_get_manufacturer_name_sync(
 			deviceinfo_proxy,
 			mtp_device,
-			manufacturername,
+			manufacturer_name,
 			&result,
 			NULL,
 			&error) == FALSE) {
@@ -56,7 +56,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_manufacturername(int mtp_device, char **man
 	return result;
 }
 
-mtp_error_e mtp_gdbus_deviceinfo_get_modelname(int mtp_device, char **modelname)
+mtp_error_e mtp_gdbus_deviceinfo_get_model_name(int mtp_device, char **model_name)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
@@ -64,10 +64,10 @@ mtp_error_e mtp_gdbus_deviceinfo_get_modelname(int mtp_device, char **modelname)
 	if (deviceinfo_proxy == NULL)
 			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
-	if (mtp_gdbuslib_deviceinfo_call_get_modelname_sync(
+	if (mtp_gdbuslib_deviceinfo_call_get_model_name_sync(
 			deviceinfo_proxy,
 			mtp_device,
-			modelname,
+			model_name,
 			&result,
 			NULL,
 			&error) == FALSE) {
@@ -78,7 +78,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_modelname(int mtp_device, char **modelname)
 	return result;
 }
 
-mtp_error_e mtp_gdbus_deviceinfo_get_serialnumber(int mtp_device, char **serialnumber)
+mtp_error_e mtp_gdbus_deviceinfo_get_serial_number(int mtp_device, char **serial_number)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
@@ -86,10 +86,10 @@ mtp_error_e mtp_gdbus_deviceinfo_get_serialnumber(int mtp_device, char **serialn
 	if (deviceinfo_proxy == NULL)
 			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
-	if (mtp_gdbuslib_deviceinfo_call_get_serialnumber_sync(
+	if (mtp_gdbuslib_deviceinfo_call_get_serial_number_sync(
 			deviceinfo_proxy,
 			mtp_device,
-			serialnumber,
+			serial_number,
 			&result,
 			NULL,
 			&error) == FALSE) {
@@ -100,7 +100,7 @@ mtp_error_e mtp_gdbus_deviceinfo_get_serialnumber(int mtp_device, char **serialn
 	return result;
 }
 
-mtp_error_e mtp_gdbus_deviceinfo_get_deviceversion(int mtp_device, char **deviceversion)
+mtp_error_e mtp_gdbus_deviceinfo_get_device_version(int mtp_device, char **device_version)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
@@ -108,10 +108,54 @@ mtp_error_e mtp_gdbus_deviceinfo_get_deviceversion(int mtp_device, char **device
 	if (deviceinfo_proxy == NULL)
 			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
-	if (mtp_gdbuslib_deviceinfo_call_get_deviceversion_sync(
+	if (mtp_gdbuslib_deviceinfo_call_get_device_version_sync(
 			deviceinfo_proxy,
 			mtp_device,
-			deviceversion,
+			device_version,
+			&result,
+			NULL,
+			&error) == FALSE) {
+		result = MTP_ERROR_COMM_ERROR;
+		g_error_free(error);
+	}
+
+	return result;
+}
+
+mtp_error_e mtp_gdbus_deviceinfo_get_bus_location(int mtp_device, int *bus_location)
+{
+	mtp_error_e result = MTP_ERROR_NONE;
+	GError *error = NULL;
+
+	if (deviceinfo_proxy == NULL)
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
+
+	if (mtp_gdbuslib_deviceinfo_call_get_bus_location_sync(
+			deviceinfo_proxy,
+			mtp_device,
+			bus_location,
+			&result,
+			NULL,
+			&error) == FALSE) {
+		result = MTP_ERROR_COMM_ERROR;
+		g_error_free(error);
+	}
+
+	return result;
+}
+
+mtp_error_e mtp_gdbus_deviceinfo_get_device_id(int mtp_device, int *device_id)
+{
+	mtp_error_e result = MTP_ERROR_NONE;
+	GError *error = NULL;
+
+	if (deviceinfo_proxy == NULL)
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
+
+	if (mtp_gdbuslib_deviceinfo_call_get_device_id_sync(
+			deviceinfo_proxy,
+			mtp_device,
+			device_id,
 			&result,
 			NULL,
 			&error) == FALSE) {

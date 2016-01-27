@@ -50,8 +50,9 @@ typedef struct _mtp_object_info {
 
 /* internal api */
 int mtp_objectinfo_get_object_info(int mtp_device, int object_handle, mtp_object_info **object_info);
-
 int mtp_delete_object(mtp_device_h mtp_device, mtp_object_h object_handle);
+int mtp_deviceinfo_get_bus_location(mtp_device_h mtp_device, int *bus_locaton);
+int mtp_deviceinfo_get_device_id(mtp_device_h mtp_device, int *device_id);
 
 #ifdef __cplusplus
 }

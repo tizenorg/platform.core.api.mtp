@@ -140,86 +140,18 @@ int manager_test_initialize(void)
 	return ret;
 }
 
-int manager_test_get_raw_devices(void)
-{
-	int ret = 0;
-	int i;
-	mtp_raw_device_h *raw_devices = NULL;
-	int device_count;
-
-	BEGIN();
-
-	ret = mtp_get_raw_devices(&raw_devices, &device_count);
-	TC_PRT("ret[%d]: device_num[%d]", ret, device_count);
-
-	if (ret == MTP_ERROR_NONE) {
-		for (i = 0; i < device_count; i++) {
-			int bus_location;
-			int device_number;
-			char *device_name = NULL;
-			mtp_get_bus_location(raw_devices[i], &bus_location);
-			mtp_get_device_number(raw_devices[i], &device_number);
-			mtp_get_device_name(raw_devices[i], &device_name);
-			TC_PRT("device bus_location[%d], dev_no [%d], model_name[%s]",
-				bus_location, device_number, device_name);
-		}
-	} else {
-		TC_PRT("get device list failed, ret[%d]", ret);
-	}
-
-	END();
-	return ret;
-}
-
-int manager_test_get_device(void)
-{
-	int ret = 0;
-	int bus_location = 0;
-	int device_number = 0;
-	int device_count;
-	mtp_raw_device_h *raw_devices = NULL;
-
-	BEGIN();
-
-	ret = mtp_get_raw_devices(&raw_devices, &device_count);
-
-	if (ret != MTP_ERROR_NONE) {
-		TC_PRT("mtp_get_raw_devices is failed!!!");
-		return -1;
-	}
-
-	if (device_count == 0) {
-		TC_PRT("device is not exist!!!");
-		END();
-		return -1;
-	}
-
-	TC_PRT("Select first device");
-
-	mtp_get_bus_location(raw_devices[0], &bus_location);
-	mtp_get_device_number(raw_devices[0], &device_number);
-
-	TC_PRT("bus location : %d, device_number : %d", bus_location, device_number);
-
-	ret = mtp_get_device(bus_location, device_number, &mtp_device);
-	TC_PRT("ret[%d]: 1st mtp device [%d]", ret, mtp_device);
-
-	END();
-	return ret;
-}
-
 int manager_test_get_storages(void)
 {
 	int i;
 	int ret = 0;
 	int bus_location = 0;
-	int device_number = 0;
+	int device_id = 0;
 	int device_count;
 	int storage_count;
-	mtp_raw_device_h *raw_devices = NULL;
+	mtp_device_h *mtp_devices = NULL;
 	mtp_storage_h *mtp_storages = NULL;
 
-	ret = mtp_get_raw_devices(&raw_devices, &device_count);
+	ret = mtp_get_devices(&mtp_devices, &device_count);
 
 	if (ret != MTP_ERROR_NONE) {
 		TC_PRT("mtp_get_raw_devices is failed!!!");
@@ -234,15 +166,14 @@ int manager_test_get_storages(void)
 
 	TC_PRT("Select first device");
 
-	mtp_get_bus_location(raw_devices[0], &bus_location);
-	mtp_get_device_number(raw_devices[0], &device_number);
+	mtp_deviceinfo_get_bus_location(mtp_devices[0], &bus_location);
+	mtp_deviceinfo_get_device_id(mtp_devices[0], &device_id);
 
-	TC_PRT("bus location : %d, device_number : %d", bus_location, device_number);
+	TC_PRT("bus location : %d, device_id : %d", bus_location, device_id);
 
-	ret = mtp_get_device(bus_location, device_number, &mtp_device);
-	TC_PRT("ret[%d]: 1st mtp device [%d]", ret, mtp_device);
+	TC_PRT("ret[%d]: 1st mtp device [%d]", ret, mtp_devices[0]);
 
-	ret = mtp_get_storages(mtp_device, &mtp_storages, &storage_count);
+	ret = mtp_get_storages(mtp_devices[0], &mtp_storages, &storage_count);
 	TC_PRT("ret[%d]: storage_count[%d]", ret, storage_count);
 
 	if (storage_count == 0) {
@@ -250,10 +181,6 @@ int manager_test_get_storages(void)
 		END();
 		return -1;
 	}
-
-	ret = mtp_destroy_raw_devices(raw_devices);
-	TC_PRT("ret[%d]: mtp_destroy_raw_devices", ret);
-
 
 	for (i = 0; i < storage_count; i++)
 		TC_PRT("mtp storage %d [%d]", i, mtp_storages[i]);
@@ -1063,7 +990,7 @@ int application_test_event_callback(void)
 
 	BEGIN();
 
-	ret = mtp_set_mtp_event_cb(__test_mtp_event_cb, NULL);
+	ret = mtp_add_mtp_event_cb(__test_mtp_event_cb, NULL);
 
 	END();
 
@@ -1073,8 +1000,6 @@ int application_test_event_callback(void)
 tc_table_t tc_table[] = {
 	/* manager api */
 	{"mtp_initialize",							1,	manager_test_initialize},
-	{"mtp_get_raw_devices",						2,	manager_test_get_raw_devices},
-	{"mtp_get_device",					3,	manager_test_get_device},
 	{"mtp_get_storages",						4,	manager_test_get_storages},
 	{"mtp_get_object_handles",					5,	manager_test_get_object_handles},
 	{"mtp_delete_object",						6,	manager_test_delete_object},
