@@ -70,7 +70,7 @@ static bool __is_mtp_activated()
 	return true;
 }
 
-/* Device Manager */
+/* Manager */
 int mtp_initialize(void)
 {
 	int ret = MTP_ERROR_NONE;
@@ -99,7 +99,7 @@ int mtp_initialize(void)
 	return ret;
 }
 
-int mtp_get_raw_devices(mtp_raw_device_h **raw_devices, int *device_count)
+int mtp_get_devices(int **mtp_devices, int *device_count)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -110,141 +110,21 @@ int mtp_get_raw_devices(mtp_raw_device_h **raw_devices, int *device_count)
 	CHECK_SUPPORTED();
 	CHECK_INIT();
 	CHECK_ACTIVATED();
+	cond_expr_ret(mtp_devices == NULL, MTP_ERROR_INVALID_PARAMETER);
 	cond_expr_ret(device_count == NULL, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
-	*device_count = 0;
 
-	ret = mtp_gdbus_manager_get_raw_devices((mtp_raw_device ***)raw_devices, device_count);
+	ret = mtp_gdbus_manager_get_devices(mtp_devices, device_count);
 
-	_END();
-
-	return ret;
-}
-
-int mtp_get_bus_location(mtp_raw_device_h raw_device, int *bus_location)
-{
-	int ret = MTP_ERROR_NONE;
-
-	_BEGIN();
-
-	/* precondition check start */
-
-	CHECK_SUPPORTED();
-	CHECK_INIT();
-	cond_expr_ret(raw_device == NULL, MTP_ERROR_INVALID_PARAMETER);
-	cond_expr_ret(bus_location == NULL, MTP_ERROR_INVALID_PARAMETER);
-
-	/* precondition check end */
-
-	*bus_location = ((mtp_raw_device *)raw_device)->bus_location;
+	TC_PRT("device count %d", *device_count);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_get_device_number(mtp_raw_device_h raw_device, int *device_number)
-{
-	int ret = MTP_ERROR_NONE;
-
-	_BEGIN();
-
-	/* precondition check start */
-
-	CHECK_SUPPORTED();
-	CHECK_INIT();
-	cond_expr_ret(raw_device == NULL, MTP_ERROR_INVALID_PARAMETER);
-	cond_expr_ret(device_number == NULL, MTP_ERROR_INVALID_PARAMETER);
-
-	/* precondition check end */
-
-	*device_number = ((mtp_raw_device *)raw_device)->device_number;
-
-	_END();
-
-	return ret;
-}
-
-int mtp_get_device_name(mtp_raw_device_h raw_device, char **model_name)
-{
-	int ret = MTP_ERROR_NONE;
-
-	/* precondition check start */
-
-	CHECK_SUPPORTED();
-	CHECK_INIT();
-	cond_expr_ret(raw_device == NULL, MTP_ERROR_INVALID_PARAMETER);
-	cond_expr_ret(model_name == NULL, MTP_ERROR_INVALID_PARAMETER);
-
-	/* precondition check end */
-
-	*model_name = g_strdup(((mtp_raw_device *)raw_device)->model_name);
-
-	return ret;
-}
-
-int mtp_destroy_raw_devices(mtp_raw_device_h *raw_devices)
-{
-	int i;
-	int ret = MTP_ERROR_NONE;
-	int dev_count;
-	mtp_raw_device *first_device = (mtp_raw_device *)raw_devices[0];
-
-	_BEGIN();
-
-	/* precondition check start */
-
-	CHECK_SUPPORTED();
-	cond_expr_ret(raw_devices == NULL, MTP_ERROR_INVALID_PARAMETER);
-	cond_expr_ret(first_device == NULL, MTP_ERROR_INVALID_PARAMETER);
-
-	/* precondition check end */
-	dev_count = first_device->dev_count;
-	if (dev_count <= 0 || dev_count > 6)
-		return MTP_ERROR_INVALID_PARAMETER;
-
-	for (i = 0; i < dev_count; i++) {
-		mtp_raw_device *r_device = (mtp_raw_device *)raw_devices[i];
-
-		if (r_device != NULL && r_device->model_name != NULL) {
-			free(r_device->model_name);
-			free(r_device);
-		}
-	}
-
-	free(raw_devices);
-
-	_END();
-
-	return ret;
-}
-
-int mtp_get_device(int bus_location, int device_number, int *mtp_device)
-{
-	int ret = MTP_ERROR_NONE;
-
-	_BEGIN();
-
-	/* precondition check start */
-
-	CHECK_SUPPORTED();
-	CHECK_INIT();
-	CHECK_ACTIVATED();
-	cond_expr_ret(bus_location == 0, MTP_ERROR_INVALID_PARAMETER);
-
-	/* precondition check end */
-
-	ret = mtp_gdbus_manager_get_device(bus_location, device_number, mtp_device);
-
-	TC_PRT("mtp_device %d", *mtp_device);
-
-	_END();
-
-	return ret;
-}
-
-int mtp_get_storages(int mtp_device, int **mtp_storages, int* storage_num)
+int mtp_get_storages(int mtp_device, int **mtp_storages, int* storage_count)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -256,12 +136,14 @@ int mtp_get_storages(int mtp_device, int **mtp_storages, int* storage_num)
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(mtp_storages == NULL, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(storage_count == NULL, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_manager_get_storages(mtp_device, mtp_storages, storage_num);
+	ret = mtp_gdbus_manager_get_storages(mtp_device, mtp_storages, storage_count);
 
-	TC_PRT("storage number %d", *storage_num);
+	TC_PRT("storage count %d", *storage_count);
 
 	_END();
 
@@ -269,7 +151,7 @@ int mtp_get_storages(int mtp_device, int **mtp_storages, int* storage_num)
 }
 
 int mtp_get_object_handles(int mtp_device, int mtp_storage, mtp_filetype_e file_type,
-	int parent, int **object_handles, int* object_num)
+	int parent, int **object_handles, int* object_count)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -282,11 +164,13 @@ int mtp_get_object_handles(int mtp_device, int mtp_storage, mtp_filetype_e file_
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
 	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(object_handles == NULL, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(object_count == NULL, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 
 	ret = mtp_gdbus_manager_get_object_handles(mtp_device,
-		mtp_storage, file_type, parent, object_handles, object_num);
+		mtp_storage, file_type, parent, object_handles, object_count);
 
 	_END();
 
@@ -362,7 +246,7 @@ int mtp_get_thumbnail(int mtp_device, int object_handle, char *dest_path)
 	return ret;
 }
 
-int mtp_set_mtp_event_cb(mtp_event_cb callback, void *user_data)
+int mtp_add_mtp_event_cb(mtp_event_cb callback, void *user_data)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -376,14 +260,14 @@ int mtp_set_mtp_event_cb(mtp_event_cb callback, void *user_data)
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_manager_set_event_cb(callback, user_data);
+	ret = mtp_gdbus_manager_add_event_cb(callback, user_data);
 
 	_END();
 
 	return ret;
 }
 
-int mtp_unset_mtp_event_cb(void)
+int mtp_remove_mtp_event_cb(mtp_event_cb callback)
 {
 	int ret = MTP_ERROR_NONE;
 
@@ -396,7 +280,27 @@ int mtp_unset_mtp_event_cb(void)
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_manager_unset_event_cb();
+	ret = mtp_gdbus_manager_remove_event_cb(callback);
+
+	_END();
+
+	return ret;
+}
+
+int mtp_remove_all_mtp_event_cb(void)
+{
+	int ret = MTP_ERROR_NONE;
+
+	_BEGIN();
+
+	/* precondition check start */
+
+	CHECK_SUPPORTED();
+	CHECK_INIT();
+
+	/* precondition check end */
+
+	ret = mtp_gdbus_manager_remove_all_event_cb();
 
 	_END();
 
@@ -449,7 +353,7 @@ int mtp_deviceinfo_get_manufacturer_name(int mtp_device, char **manufacturer_nam
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_deviceinfo_get_manufacturername(mtp_device, manufacturer_name);
+	ret = mtp_gdbus_deviceinfo_get_manufacturer_name(mtp_device, manufacturer_name);
 
 	TC_PRT("manufacturername %s", *manufacturer_name);
 
@@ -473,7 +377,7 @@ int mtp_deviceinfo_get_model_name(int mtp_device, char **model_name)
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_deviceinfo_get_modelname(mtp_device, model_name);
+	ret = mtp_gdbus_deviceinfo_get_model_name(mtp_device, model_name);
 
 	TC_PRT("modelname %s", *model_name);
 
@@ -497,9 +401,9 @@ int mtp_deviceinfo_get_serial_number(int mtp_device, char **serial_number)
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_deviceinfo_get_serialnumber(mtp_device, serial_number);
+	ret = mtp_gdbus_deviceinfo_get_serial_number(mtp_device, serial_number);
 
-	TC_PRT("serialnumber %s", *serial_number);
+	TC_PRT("serial number %s", *serial_number);
 
 	_END();
 
@@ -521,9 +425,59 @@ int mtp_deviceinfo_get_device_version(int mtp_device, char **device_version)
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_deviceinfo_get_deviceversion(mtp_device, device_version);
+	ret = mtp_gdbus_deviceinfo_get_device_version(mtp_device, device_version);
 
-	TC_PRT("deviceversion %s", *device_version);
+	TC_PRT("device version %s", *device_version);
+
+	_END();
+
+	return ret;
+}
+
+int mtp_deviceinfo_get_bus_location(int mtp_device, int *bus_location)
+{
+	int ret = MTP_ERROR_NONE;
+
+	_BEGIN();
+
+	/* precondition check start */
+
+	CHECK_SUPPORTED();
+	CHECK_INIT();
+	CHECK_ACTIVATED();
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(bus_location == NULL, MTP_ERROR_INVALID_PARAMETER);
+
+	/* precondition check end */
+
+	ret = mtp_gdbus_deviceinfo_get_bus_location(mtp_device, bus_location);
+
+	TC_PRT("bus location %d", *bus_location);
+
+	_END();
+
+	return ret;
+}
+
+int mtp_deviceinfo_get_device_number(int mtp_device, int *device_number)
+{
+	int ret = MTP_ERROR_NONE;
+
+	_BEGIN();
+
+	/* precondition check start */
+
+	CHECK_SUPPORTED();
+	CHECK_INIT();
+	CHECK_ACTIVATED();
+	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+	cond_expr_ret(device_number == NULL, MTP_ERROR_INVALID_PARAMETER);
+
+	/* precondition check end */
+
+	ret = mtp_gdbus_deviceinfo_get_device_number(mtp_device, device_number);
+
+	TC_PRT("device number %d", *device_number);
 
 	_END();
 
@@ -572,7 +526,7 @@ int mtp_storageinfo_get_free_space(int mtp_device, int mtp_storage, unsigned lon
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_freespace(mtp_device, mtp_storage, (guint64 *)free_space);
+	ret = mtp_gdbus_storageinfo_get_free_space(mtp_device, mtp_storage, (guint64 *)free_space);
 
 	TC_PRT("freespace %llu", *free_space);
 
@@ -597,7 +551,7 @@ int mtp_storageinfo_get_max_capacity(int mtp_device, int mtp_storage, unsigned l
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_maxcapacity(mtp_device, mtp_storage, (guint64 *)max_capacity);
+	ret = mtp_gdbus_storageinfo_get_max_capacity(mtp_device, mtp_storage, (guint64 *)max_capacity);
 
 	TC_PRT("maxcapacity %llu", *max_capacity);
 
@@ -622,7 +576,7 @@ int mtp_storageinfo_get_storage_type(int mtp_device, int mtp_storage, mtp_storag
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_storagetype(mtp_device, mtp_storage, (int *)storage_type);
+	ret = mtp_gdbus_storageinfo_get_storage_type(mtp_device, mtp_storage, (int *)storage_type);
 
 	TC_PRT("storagetype %d", *storage_type);
 
@@ -647,7 +601,7 @@ int mtp_storageinfo_get_volume_identifier(int mtp_device, int mtp_storage, char 
 
 	/* precondition check end */
 
-	ret = mtp_gdbus_storageinfo_get_volumeidentifier(mtp_device, mtp_storage, volume_identifier);
+	ret = mtp_gdbus_storageinfo_get_volume_identifier(mtp_device, mtp_storage, volume_identifier);
 
 	TC_PRT("volumeidentifier %s", *volume_identifier);
 
@@ -842,7 +796,7 @@ int mtp_objectinfo_get_file_type(int mtp_device, int object_handle, mtp_filetype
 	/* precondition check end */
 
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
-		object_handle, MTP_PROPERTY_FORMAT, (int*)file_type);
+		object_handle, MTP_PROPERTY_FILE_TYPE, (int*)file_type);
 
 	_END();
 
@@ -962,7 +916,7 @@ int mtp_objectinfo_get_thumbnail_file_type(int mtp_device,
 	/* precondition check end */
 
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
-		object_handle, MTP_PROPERTY_THUMBNAIL_FORMAT, (int*)file_type);
+		object_handle, MTP_PROPERTY_THUMBNAIL_FILE_TYPE, (int*)file_type);
 
 	_END();
 

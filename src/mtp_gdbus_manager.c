@@ -56,7 +56,7 @@ static void __manager_proxy_deinit(void)
 	manager_proxy = NULL;
 }
 
-mtp_error_e mtp_gdbus_manager_set_event_cb(mtp_event_cb callback, void *user_data)
+mtp_error_e mtp_gdbus_manager_add_event_cb(mtp_event_cb callback, void *user_data)
 {
 	event_callback = callback;
 	event_user_data = user_data;
@@ -64,7 +64,15 @@ mtp_error_e mtp_gdbus_manager_set_event_cb(mtp_event_cb callback, void *user_dat
 	return MTP_ERROR_NONE;
 }
 
-mtp_error_e mtp_gdbus_manager_unset_event_cb(void)
+mtp_error_e mtp_gdbus_manager_remove_event_cb(mtp_event_cb callback)
+{
+	event_callback = NULL;
+	event_user_data = NULL;
+
+	return MTP_ERROR_NONE;
+}
+
+mtp_error_e mtp_gdbus_manager_remove_all_event_cb(void)
 {
 	event_callback = NULL;
 	event_user_data = NULL;
@@ -87,19 +95,18 @@ mtp_error_e mtp_gdbus_manager_initialize(void)
 	return result;
 }
 
-mtp_error_e mtp_gdbus_manager_get_raw_devices(mtp_raw_device ***raw_devices, int *device_count)
+mtp_error_e mtp_gdbus_manager_get_devices(int **mtp_devices, int *device_num)
 {
-	int dev_count;
 	GVariant *va = NULL;
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
 
 	if (manager_proxy == NULL)
-		return MTP_ERROR_NOT_COMM_INITIALIZED;
+			return MTP_ERROR_NOT_COMM_INITIALIZED;
 
-	if (mtp_gdbuslib_manager_call_get_raw_devices_sync(
+	if (mtp_gdbuslib_manager_call_get_devices_sync(
 			manager_proxy,
-			&dev_count,
+			device_num,
 			&va,
 			&result,
 			NULL,
@@ -110,63 +117,27 @@ mtp_error_e mtp_gdbus_manager_get_raw_devices(mtp_raw_device ***raw_devices, int
 		return result;
 	}
 
-	*device_count = dev_count;
-
-	if (dev_count != 0 && (g_variant_n_children(va) == dev_count)) {
+	if (*device_num != 0 && (g_variant_n_children(va) == *device_num)) {
 		GVariantIter *iter = NULL, *iter_row = NULL;
 		GVariant *key_value;
 		const gchar *key;
 		guint i = 0;
 
-		*raw_devices = (mtp_raw_device **)malloc(sizeof(mtp_raw_device*) * 1);
-		**raw_devices = (mtp_raw_device *)malloc(sizeof(mtp_raw_device) * *device_count);
+		*mtp_devices = g_new(int, *device_num);
 
 		g_variant_get(va, "aa{sv}", &iter);
 		while (g_variant_iter_next(iter, "a{sv}", &iter_row)) {
 			while (g_variant_iter_loop(iter_row, "{sv}", &key, &key_value)) {
-				if (g_strcmp0(key, "model_name") == 0) {
-					(**raw_devices)[i].model_name =
-						g_strdup(g_variant_get_string(key_value, NULL));
-				} else if (g_strcmp0(key, "bus_location") == 0) {
-					(**raw_devices)[i].bus_location = g_variant_get_int32(key_value);
-				} else if (g_strcmp0(key, "device_number") == 0) {
-					(**raw_devices)[i].device_number = g_variant_get_int32(key_value);
-				}
+				if (g_strcmp0(key, "mtp_device") == 0)
+					(*mtp_devices)[i] = g_variant_get_int32(key_value);
 			}
-			(**raw_devices)[i].dev_count = dev_count;
 			i++;
 			g_variant_iter_free(iter_row);
 		}
 		g_variant_iter_free(iter);
-	} else {
-		result = MTP_ERROR_NO_DEVICE;
 	}
 
 	g_variant_unref(va);
-
-	return result;
-}
-
-mtp_error_e mtp_gdbus_manager_get_device(int bus_location, int device_number, int *mtp_device)
-{
-	mtp_error_e result = MTP_ERROR_NONE;
-	GError *error = NULL;
-
-	if (manager_proxy == NULL)
-			return MTP_ERROR_NOT_COMM_INITIALIZED;
-
-	if (mtp_gdbuslib_manager_call_get_device_sync(
-			manager_proxy,
-			bus_location,
-			device_number,
-			mtp_device,
-			&result,
-			NULL,
-			&error) == FALSE) {
-		result = MTP_ERROR_COMM_ERROR;
-
-		g_error_free(error);
-	}
 
 	return result;
 }
@@ -221,7 +192,7 @@ mtp_error_e mtp_gdbus_manager_get_storages(int mtp_device,
 }
 
 mtp_error_e mtp_gdbus_manager_get_object_handles(int mtp_device,
-	int mtp_storage, int format, int parent_object_handle, int **object_handles, int *object_num)
+	int mtp_storage, int file_type, int parent_object_handle, int **object_handles, int *object_num)
 {
 	GVariant *va = NULL;
 	mtp_error_e result = MTP_ERROR_NONE;
@@ -234,7 +205,7 @@ mtp_error_e mtp_gdbus_manager_get_object_handles(int mtp_device,
 			manager_proxy,
 			mtp_device,
 			mtp_storage,
-			format,
+			file_type,
 			parent_object_handle,
 			object_num,
 			&va,
