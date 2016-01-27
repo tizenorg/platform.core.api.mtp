@@ -58,8 +58,8 @@ mtp_error_e mtp_gdbus_storageinfo_get_description(int mtp_device,
 	return result;
 }
 
-mtp_error_e mtp_gdbus_storageinfo_get_freespace(int mtp_device,
-	int mtp_storage, guint64 *freespace)
+mtp_error_e mtp_gdbus_storageinfo_get_free_space(int mtp_device,
+	int mtp_storage, guint64 *free_space)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
@@ -71,7 +71,7 @@ mtp_error_e mtp_gdbus_storageinfo_get_freespace(int mtp_device,
 			storageinfo_proxy,
 			mtp_device,
 			mtp_storage,
-			freespace,
+			free_space,
 			&result,
 			NULL,
 			&error) == FALSE) {
@@ -82,8 +82,8 @@ mtp_error_e mtp_gdbus_storageinfo_get_freespace(int mtp_device,
 	return result;
 }
 
-mtp_error_e mtp_gdbus_storageinfo_get_maxcapacity(int mtp_device,
-	int mtp_storage, guint64 *maxcapacity)
+mtp_error_e mtp_gdbus_storageinfo_get_max_capacity(int mtp_device,
+	int mtp_storage, guint64 *max_capacity)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
@@ -95,7 +95,7 @@ mtp_error_e mtp_gdbus_storageinfo_get_maxcapacity(int mtp_device,
 			storageinfo_proxy,
 			mtp_device,
 			mtp_storage,
-			maxcapacity,
+			max_capacity,
 			&result,
 			NULL,
 			&error) == FALSE) {
@@ -106,8 +106,8 @@ mtp_error_e mtp_gdbus_storageinfo_get_maxcapacity(int mtp_device,
 	return result;
 }
 
-mtp_error_e mtp_gdbus_storageinfo_get_storagetype(int mtp_device,
-	int mtp_storage, int *storagetype)
+mtp_error_e mtp_gdbus_storageinfo_get_storage_type(int mtp_device,
+	int mtp_storage, int *storage_type)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
@@ -119,7 +119,7 @@ mtp_error_e mtp_gdbus_storageinfo_get_storagetype(int mtp_device,
 			storageinfo_proxy,
 			mtp_device,
 			mtp_storage,
-			storagetype,
+			storage_type,
 			&result,
 			NULL,
 			&error) == FALSE) {
@@ -130,8 +130,8 @@ mtp_error_e mtp_gdbus_storageinfo_get_storagetype(int mtp_device,
 	return result;
 }
 
-mtp_error_e mtp_gdbus_storageinfo_get_volumeidentifier(int mtp_device,
-	int mtp_storage, char **volumeidentifier)
+mtp_error_e mtp_gdbus_storageinfo_get_volume_identifier(int mtp_device,
+	int mtp_storage, char **volume_identifier)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
 	GError *error = NULL;
@@ -143,7 +143,7 @@ mtp_error_e mtp_gdbus_storageinfo_get_volumeidentifier(int mtp_device,
 			storageinfo_proxy,
 			mtp_device,
 			mtp_storage,
-			volumeidentifier,
+			volume_identifier,
 			&result,
 			NULL,
 			&error) == FALSE) {
