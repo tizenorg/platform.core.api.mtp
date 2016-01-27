@@ -163,7 +163,7 @@
  * \#include <mtp.h>
  * @section	CAPI_NETWORK_MTP_OBJECTINFO_MODULE_OVERVIEW Overview
  * The MTP Object Information api provides following functions :\n
- * - Get object format\n
+ * - Get object file type\n
  * - Get object name\n
  * - Get object size\n
  * - and, more object information\n

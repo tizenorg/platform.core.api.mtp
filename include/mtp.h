@@ -37,12 +37,6 @@ extern "C" {
  */
 
 /**
- * @brief The handle to the mtp raw device
- * @since_tizen 3.0
- */
-typedef struct mtp_raw_device *mtp_raw_device_h;
-
-/**
  * @brief The handle to the mtp device
  * @since_tizen 3.0
  */
@@ -68,23 +62,22 @@ typedef enum {
 	MTP_ERROR_NONE = TIZEN_ERROR_NONE, /**< Successful */
 	MTP_ERROR_IO_ERROR = TIZEN_ERROR_IO_ERROR, /**< I/O error */
 	MTP_ERROR_INVALID_PARAMETER = TIZEN_ERROR_INVALID_PARAMETER, /**< Invalid parameter */
-	MTP_ERROR_NO_DEVICE = TIZEN_ERROR_MTP | 0x01, /**< MTP have not any device */
 	MTP_ERROR_OUT_OF_MEMORY = TIZEN_ERROR_OUT_OF_MEMORY, /**< Out of memory */
-	MTP_ERROR_PLUGIN_FAIL = TIZEN_ERROR_MTP | 0x02, /**< Plugin failed */
 	MTP_ERROR_PERMISSION_DENIED = TIZEN_ERROR_PERMISSION_DENIED, /**< Permission denied */
-	MTP_ERROR_COMM_ERROR = TIZEN_ERROR_MTP | 0x03, /**< MTP communication error */
-	MTP_ERROR_CONTROLLER = TIZEN_ERROR_MTP | 0x04, /**< MTP controller error */
-	MTP_ERROR_NOT_INITIALIZED = TIZEN_ERROR_MTP | 0x05, /**< MTP is not initialized */
-	MTP_ERROR_NOT_ACTIVATED = TIZEN_ERROR_MTP | 0x06, /**< MTP is not activated */
-	MTP_ERROR_NOT_SUPPORTED = TIZEN_ERROR_NOT_SUPPORTED, /**< MTP is not supported */
-	MTP_ERROR_NOT_COMM_INITIALIZED = TIZEN_ERROR_MTP | 0x07, /**< MTP communication is not initialized */
+	MTP_ERROR_NOT_SUPPORTED = TIZEN_ERROR_NOT_SUPPORTED, /**< Not supported */
+	MTP_ERROR_COMM_ERROR = TIZEN_ERROR_MTP | 0x01, /**< MTP communication error */
+	MTP_ERROR_CONTROLLER = TIZEN_ERROR_MTP | 0x02, /**< MTP controller error */
+	MTP_ERROR_NO_DEVICE = TIZEN_ERROR_MTP | 0x03, /**< MTP have not any device */
+	MTP_ERROR_NOT_INITIALIZED = TIZEN_ERROR_MTP | 0x04, /**< MTP is not initialized */
+	MTP_ERROR_NOT_ACTIVATED = TIZEN_ERROR_MTP | 0x05, /**< MTP is not activated */
+	MTP_ERROR_NOT_COMM_INITIALIZED = TIZEN_ERROR_MTP | 0x06, /**< MTP communication is not initialized */
+	MTP_ERROR_PLUGIN_FAIL = TIZEN_ERROR_MTP | 0x07, /**< MTP Plugin failed */
 } mtp_error_e;
 
 /**
  * @brief Enumerations for MTP Storage type
  * @since_tizen 3.0
  */
-
 typedef enum {
 	MTP_STORAGE_TYPE_UNDEFINED, /**< Storage type is undefined */
 	MTP_STORAGE_TYPE_FIXED_ROM, /**< Storage type is fixed ROM */
@@ -164,7 +157,7 @@ typedef enum {
 } mtp_event_e;
 
 /**
- * @brief Called after mtp_set_mtp_event_cb() has completed.
+ * @brief Called when mtp event is occured.
  * @since_tizen 3.0
  * @remarks Depending on the type of event, the meaning of event parameter is different.
  * - If event is device event, then event_parameter type is mtp_device_h.
@@ -199,115 +192,10 @@ typedef void (* mtp_event_cb)(mtp_event_e event, int event_parameter, void *user
 int mtp_initialize(void);
 
 /**
- * @brief Gets device list.
+ * @brief Gets the mtp devices.
  * @since_tizen 3.0
- * @remarks The @a raw_devices should be freed using mtp_destroy_raw_devices().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
- *
- * @param [out] raw_devices All current connected device list
- * @param [out] device_count The count of device
- *
- * @return 0 on success, otherwise a negative error value.
- * @retval #MTP_ERROR_NONE Successful
- * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
- * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
- * @retval #MTP_ERROR_NOT_ACTIVATED MTP is not activated
- * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
- * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
- *
- * @see mtp_destroy_raw_devices()
- */
-int mtp_get_raw_devices(mtp_raw_device_h **raw_devices, int *device_count);
-
-/**
- * @brief Gets bus location from raw device.
- * @since_tizen 3.0
- * @remarks The @a raw_device can get using mtp_get_raw_devices().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
- *
- * @param [in] raw_device The raw device
- * @param [out] bus_location The bus location
- *
- * @return 0 on success, otherwise a negative error value.
- * @retval #MTP_ERROR_NONE Successful
- * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
- * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
- * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
- *
- * @see mtp_get_raw_devices()
- */
-int mtp_get_bus_location(mtp_raw_device_h raw_device, int *bus_location);
-
-/**
- * @brief Gets device number from raw device.
- * @since_tizen 3.0
- * @remarks The @a raw_device can get using mtp_get_raw_devices().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
- *
- * @param [in] raw_device The raw device
- * @param [out] device_number The device number
- *
- * @return 0 on success, otherwise a negative error value.
- * @retval #MTP_ERROR_NONE Successful
- * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
- * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
- * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
- *
- * @see mtp_get_raw_devices()
- */
-int mtp_get_device_number(mtp_raw_device_h raw_device, int *device_number);
-
-/**
- * @brief Gets device name from raw device.
- * @since_tizen 3.0
- * @remarks The @a raw_device can get using mtp_get_raw_devices().
- * @remarks The @a model_name should be freed using free().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
- *
- * @param [in] raw_device The raw device
- * @param [out] model_name The model name
- *
- * @return 0 on success, otherwise a negative error value.
- * @retval #MTP_ERROR_NONE Successful
- * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
- * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
- * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
- *
- * @see mtp_get_raw_devices()
- */
-int mtp_get_device_name(mtp_raw_device_h raw_device, char **model_name);
-
-/**
- * @brief Destroys the raw devices handler.
- * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
- *
- * @param [in] raw_devices The raw devices handler
- *
- * @return 0 on success, otherwise a negative error value.
- * @retval #MTP_ERROR_NONE Successful
- * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
- * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
- *
- * @see mtp_get_raw_devices()
- */
-int mtp_destroy_raw_devices(mtp_raw_device_h *raw_devices);
-
-/**
- * @brief Gets device handler from bus location.
- * @since_tizen 3.0
- * @remarks For using this api, you should get bus location and device number from raw device.
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
- *
- * @param [in] bus_location The bus location
- * @param [in] device_number The device number
- * @param [out] mtp_device The MTP device
+ * @param [out] mtp_devices The MTP device list
+ * @param [out] device_count Length of device list
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
@@ -318,21 +206,18 @@ int mtp_destroy_raw_devices(mtp_raw_device_h *raw_devices);
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  *
- * @pre mtp_get_bus_location(), mtp_get_device_number()
  * @see mtp_initialize()
  */
-int mtp_get_device(int bus_location, int device_number, mtp_device_h *mtp_device);
+int mtp_get_devices(mtp_device_h **mtp_devices, int *device_count);
 
 /**
- * @brief Gets mtp storages from device.
+ * @brief Gets mtp storages from the given device.
  * @since_tizen 3.0
  * @remarks The @a mtp_storages should be freed using free().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [out] mtp_storages Current mtp storage list
- * @param [out] storage_num Length of storage list
+ * @param [out] storage_count Length of storage list
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
@@ -343,24 +228,22 @@ int mtp_get_device(int bus_location, int device_number, mtp_device_h *mtp_device
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  *
- * @see mtp_get_device()
+ * @see mtp_get_devices()
  */
-int mtp_get_storages(mtp_device_h mtp_device, mtp_storage_h **mtp_storages, int* storage_num);
+int mtp_get_storages(mtp_device_h mtp_device, mtp_storage_h **mtp_storages, int* storage_count);
 
 /**
  * @brief Gets object handles from the given device and storage.
  * @since_tizen 3.0
  * @remarks The @a object_handles should be freed using free().
  * @remarks If the @a parent is 0, it means "root folder" of mtp storage.
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] mtp_storage The MTP storage
  * @param [in] file_type The file type what you want
  * @param [in] parent The parent object handle
  * @param [out] object_handles The object handle list
- * @param [out] object_num Length of object handle list
+ * @param [out] object_count Length of object handle list
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
@@ -371,15 +254,16 @@ int mtp_get_storages(mtp_device_h mtp_device, mtp_storage_h **mtp_storages, int*
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  *
- * @see mtp_get_device()
+ * @see mtp_get_devices()
  * @see mtp_get_storages()
  */
 int mtp_get_object_handles(mtp_device_h mtp_device, mtp_storage_h mtp_storage, mtp_filetype_e file_type,
-	mtp_object_h parent, mtp_object_h **object_handles, int* object_num);
+	mtp_object_h parent, mtp_object_h **object_handles, int* object_count);
 
 /**
  * @brief Gets object for a given path from object handle.
  * @since_tizen 3.0
+ * @remarks The @a dest_path is host storage path.
  * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
  * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
@@ -396,15 +280,17 @@ int mtp_get_object_handles(mtp_device_h mtp_device, mtp_storage_h mtp_storage, m
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_IO_ERROR I/O error
+ * @retval #MTP_ERROR_PERMISSION_DENIED Permission denied
  *
- * @see mtp_get_device()
+ * @see mtp_get_devices()
  * @see mtp_get_object_handles()
  */
 int mtp_get_object(mtp_device_h mtp_device, mtp_object_h object_handle, char *dest_path);
 
 /**
- * @brief Gets thumbnail from object handle.
+ * @brief Gets thumbnail from the given object handle.
  * @since_tizen 3.0
+ * @remarks The @a dest_path is host storage path.
  * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
  * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage.
  *
@@ -421,22 +307,22 @@ int mtp_get_object(mtp_device_h mtp_device, mtp_object_h object_handle, char *de
  * @retval #MTP_ERROR_NOT_COMM_INITIALIZED MTP communication is not initialized
  * @retval #MTP_ERROR_COMM_ERROR MTP communication error
  * @retval #MTP_ERROR_IO_ERROR I/O error
+ * @retval #MTP_ERROR_PERMISSION_DENIED Permission denied
  *
- * @see mtp_get_device()
+ * @see mtp_get_devices()
  * @see mtp_get_object_handles()
  */
 int mtp_get_thumbnail(mtp_device_h mtp_device, mtp_object_h object_handle, char *dest_path);
 
 /**
- * @brief Registers a callback function for receiving MTP event.
+ * @brief Add a callback function for receiving MTP event.
  * @since_tizen 3.0
- *
+ * @remarks You can register multiple callback. \n
+ * If you don't want to receive the event, then using the mtp_remove_mtp_event_cb() or mtp_remove_all_mtp_event_cb() function to unregister a callback.
  * @remarks If device state is changed, #MTP_EVENT_DEVICE_ADDED or #MTP_EVENT_DEVICE_REMOVED event is occur. \n
  * If storage state is changed, #MTP_EVENT_STORAGE_ADDED or #MTP_EVENT_STORAGE_REMOVED event is occur. \n
  * If object state is changed, #MTP_EVENT_OBJECT_ADDED or #MTP_EVENT_OBJECT_REMOVED event is occur. \n
  * If mtp service is turned off, #MTP_EVENT_TURNED_OFF event is occur. \n
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] event_cb The callback
  * @param [in] user_data The user data
@@ -446,16 +332,17 @@ int mtp_get_thumbnail(mtp_device_h mtp_device, mtp_object_h object_handle, char 
  * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
  * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
  * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
-
- * @see mtp_unset_mtp_event_cb()
+ *
+ * @see mtp_remove_mtp_event_cb()
+ * @see mtp_remove_all_mtp_event_cb()
  */
-int mtp_set_mtp_event_cb(mtp_event_cb event_cb, void *user_data);
+int mtp_add_mtp_event_cb(mtp_event_cb event_cb, void *user_data);
 
 /**
- * @brief Unregisters the callback function.
+ * @brief Removes the callback function.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
+ *
+ * @param [in] event_cb The callback
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
@@ -464,7 +351,7 @@ int mtp_set_mtp_event_cb(mtp_event_cb event_cb, void *user_data);
  *
  * @see mtp_set_mtp_event_cb()
  */
-int mtp_unset_mtp_event_cb(void);
+int mtp_remove_mtp_event_cb(mtp_event_cb event_cb);
 
 /**
  * @brief Deinitializes MTP operation.
@@ -494,8 +381,6 @@ int mtp_deinitialize(void);
  * @brief Gets the manufacturer name of the device information.
  * @since_tizen 3.0
  * @remarks The @a manufacturer_name should be freed using free().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [out] manufacturer_name The manufacturer name of Device information
@@ -512,7 +397,7 @@ int mtp_deinitialize(void);
  * @retval #MTP_ERROR_OUT_OF_MEMORY Memory Allocation failed
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @see mtp_get_device()
+ * @see mtp_get_devices()
  */
 int mtp_deviceinfo_get_manufacturer_name(mtp_device_h mtp_device, char **manufacturer_name);
 
@@ -520,8 +405,6 @@ int mtp_deviceinfo_get_manufacturer_name(mtp_device_h mtp_device, char **manufac
  * @brief Gets the model name of the device information.
  * @since_tizen 3.0
  * @remarks The @a model_name should be freed using free().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [out] model_name The model name of Device information
@@ -538,7 +421,7 @@ int mtp_deviceinfo_get_manufacturer_name(mtp_device_h mtp_device, char **manufac
  * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @see mtp_get_device()
+ * @see mtp_get_devices()
  */
 int mtp_deviceinfo_get_model_name(mtp_device_h mtp_device, char **model_name);
 
@@ -546,8 +429,6 @@ int mtp_deviceinfo_get_model_name(mtp_device_h mtp_device, char **model_name);
  * @brief Gets the serial number of the device information.
  * @since_tizen 3.0
  * @remarks The @a serial_number should be freed using free().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [out] serial_number The serial number of Device information
@@ -564,7 +445,7 @@ int mtp_deviceinfo_get_model_name(mtp_device_h mtp_device, char **model_name);
  * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @see mtp_get_device()
+ * @see mtp_get_devices()
  */
 int mtp_deviceinfo_get_serial_number(mtp_device_h mtp_device, char **serial_number);
 
@@ -572,8 +453,6 @@ int mtp_deviceinfo_get_serial_number(mtp_device_h mtp_device, char **serial_numb
  * @brief Gets the device version of the device information.
  * @since_tizen 3.0
  * @remarks The @a device_version should be freed using free().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [out] device_version The device version of Device information
@@ -590,7 +469,7 @@ int mtp_deviceinfo_get_serial_number(mtp_device_h mtp_device, char **serial_numb
  * @retval #MTP_ERROR_OUT_OF_MEMORY Out of memory
  * @retval #MTP_ERROR_NO_DEVICE MTP have not any device
  *
- * @see mtp_get_device()
+ * @see mtp_get_devices()
  */
 int mtp_deviceinfo_get_device_version(mtp_device_h mtp_device, char **device_version);
 
@@ -607,8 +486,6 @@ int mtp_deviceinfo_get_device_version(mtp_device_h mtp_device, char **device_ver
  * @brief Gets the description of the storage information.
  * @since_tizen 3.0
  * @remarks The @a description should be freed using free().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] mtp_storage The MTP storage
@@ -633,8 +510,6 @@ int mtp_storageinfo_get_description(mtp_device_h mtp_device, mtp_storage_h mtp_s
 /**
  * @brief Gets the free space of the storage information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] mtp_storage The MTP storage
@@ -659,8 +534,6 @@ int mtp_storageinfo_get_free_space(mtp_device_h mtp_device, mtp_storage_h mtp_st
 /**
  * @brief Gets the max capacity of the storage information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] mtp_storage The MTP storage
@@ -685,8 +558,6 @@ int mtp_storageinfo_get_max_capacity(mtp_device_h mtp_device, mtp_storage_h mtp_
 /**
  * @brief Gets the storage type of the storage information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] mtp_storage The MTP storage
@@ -712,8 +583,6 @@ int mtp_storageinfo_get_storage_type(mtp_device_h mtp_device, mtp_storage_h mtp_
  * @brief Gets the volume identifier of the storage information.
  * @since_tizen 3.0
  * @remarks The @a volume_identifier should be freed using free().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] mtp_storage The MTP storage
@@ -748,8 +617,6 @@ int mtp_storageinfo_get_volume_identifier(mtp_device_h mtp_device, mtp_storage_h
  * @brief Gets the filename of the object information.
  * @since_tizen 3.0
  * @remarks The @a file_name should be freed using free().
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -777,8 +644,6 @@ int mtp_objectinfo_get_file_name(mtp_device_h mtp_device, mtp_object_h object_ha
  * @since_tizen 3.0
  * @remarks The @a keywords should be freed using free().
  * @remarks The keywords are separated by comma.
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -804,8 +669,6 @@ int mtp_objectinfo_get_keywords(mtp_device_h mtp_device, mtp_object_h object_han
 /**
  * @brief Gets the association desc of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -831,8 +694,6 @@ int mtp_objectinfo_get_association_desc(mtp_device_h mtp_device, mtp_object_h ob
 /**
  * @brief Gets the association type of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -858,8 +719,6 @@ int mtp_objectinfo_get_association_type(mtp_device_h mtp_device, mtp_object_h ob
 /**
  * @brief Gets the size of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -885,8 +744,6 @@ int mtp_objectinfo_get_size(mtp_device_h mtp_device, mtp_object_h object_handle,
 /**
  * @brief Gets the parent object handle of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -912,8 +769,6 @@ int mtp_objectinfo_get_parent_object_handle(mtp_device_h mtp_device, mtp_object_
 /**
  * @brief Gets the mtp storage of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -941,8 +796,6 @@ int mtp_objectinfo_get_storage(mtp_device_h mtp_device, mtp_object_h object_hand
  * @since_tizen 3.0
  * @remarks When interpreted as an absolute time value, \n
  * @a data_created represents the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC).
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -970,8 +823,6 @@ int mtp_objectinfo_get_date_created(mtp_device_h mtp_device, mtp_object_h object
  * @since_tizen 3.0
  * @remarks When interpreted as an absolute time value, \n
  * @a data_modified represents the number of seconds elapsed since the Epoch, 1970-01-01 00:00:00 +0000 (UTC).
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -997,8 +848,6 @@ int mtp_objectinfo_get_date_modified(mtp_device_h mtp_device, mtp_object_h objec
 /**
  * @brief Gets the file type of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -1024,8 +873,6 @@ int mtp_objectinfo_get_file_type(mtp_device_h mtp_device, mtp_object_h object_ha
 /**
  * @brief Gets the image bit depth of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -1051,8 +898,6 @@ int mtp_objectinfo_get_image_bit_depth(mtp_device_h mtp_device, mtp_object_h obj
 /**
  * @brief Gets the image pixel width of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -1078,8 +923,6 @@ int mtp_objectinfo_get_image_pix_width(mtp_device_h mtp_device, mtp_object_h obj
 /**
  * @brief Gets the image pixel height of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -1105,8 +948,6 @@ int mtp_objectinfo_get_image_pix_height(mtp_device_h mtp_device, mtp_object_h ob
 /**
  * @brief Gets the thumbnail size of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -1132,8 +973,6 @@ int mtp_objectinfo_get_thumbnail_size(mtp_device_h mtp_device, mtp_object_h obje
 /**
  * @brief Gets the thumbnail file type of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -1159,8 +998,6 @@ int mtp_objectinfo_get_thumbnail_file_type(mtp_device_h mtp_device, mtp_object_h
 /**
  * @brief Gets the thumbnail pixel height of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
@@ -1186,8 +1023,6 @@ int mtp_objectinfo_get_thumbnail_pix_height(mtp_device_h mtp_device, mtp_object_
 /**
  * @brief Gets the thumbnail pixel width of the object information.
  * @since_tizen 3.0
- * @remarks http://tizen.org/privilege/mediastorage is needed if input or output path are relevant to media storage.\n
- * http://tizen.org/privilege/externalstorage is needed if input or output path are relevant to external storage. \n
  *
  * @param [in] mtp_device The MTP device
  * @param [in] object_handle The object handle
