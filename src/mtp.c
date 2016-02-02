@@ -314,6 +314,7 @@ int mtp_deinitialize(void)
 
 	if (__is_initialized == true && ref_count == 0) {
 		mtp_db_deinit();
+		mtp_gdbus_manager_remove_all_event_cb();
 		ret = mtp_gdbus_manager_deinitialize();
 		__is_initialized = false;
 	}
