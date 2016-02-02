@@ -28,7 +28,7 @@ extern "C" {
  * @brief This file contains the MTP API
  */
 #ifndef TIZEN_ERROR_MTP
-#define TIZEN_ERROR_MTP -0x03000000
+#define TIZEN_ERROR_MTP -0x01CC0000
 #endif
 
 /**
