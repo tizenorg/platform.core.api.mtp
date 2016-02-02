@@ -21,6 +21,7 @@
 #include <stdlib.h>
 
 #include <dlog.h>
+#include <system_info.h>
 
 #include "mtp.h"
 #include "mtp_internal.h"
@@ -32,6 +33,8 @@
 #include "mtp_gdbus_deviceinfo.h"
 #include "mtp_gdbus_storageinfo.h"
 #include "mtp_gdbus_objectinfo.h"
+
+#define MTP_FEATURE "http://tizen.org/feature/network.mtp"
 
 #define MTP_LOCK \
 do { \
@@ -62,7 +65,11 @@ bool __is_initialized = false;
 
 static bool __is_mtp_supported()
 {
-	return true;
+	bool is_supported_mtp = false;
+
+	system_info_get_platform_bool(MTP_FEATURE, &is_supported_mtp);
+
+	return is_supported_mtp;
 }
 
 static bool __is_mtp_activated()
