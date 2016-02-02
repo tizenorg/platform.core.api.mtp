@@ -277,6 +277,7 @@ int mtp_remove_mtp_event_cb(mtp_event_cb callback)
 
 	CHECK_SUPPORTED();
 	CHECK_INIT();
+	cond_expr_ret(callback == NULL, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
 

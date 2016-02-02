@@ -347,8 +347,9 @@ int mtp_add_mtp_event_cb(mtp_event_cb event_cb, void *user_data);
  * @retval #MTP_ERROR_NONE Successful
  * @retval #MTP_ERROR_NOT_SUPPORTED MTP is not supported
  * @retval #MTP_ERROR_NOT_INITIALIZED MTP is not initialized
+ * @retval #MTP_ERROR_INVALID_PARAMETER Invalid parameter
  *
- * @see mtp_set_mtp_event_cb()
+ * @see mtp_add_mtp_event_cb()
  */
 int mtp_remove_mtp_event_cb(mtp_event_cb event_cb);
 
