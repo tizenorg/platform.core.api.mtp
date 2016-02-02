@@ -9,7 +9,7 @@
 #include <mtp_internal.h>
 
 #define BUFFER_LEN 100
-#define TEST_CASE_MAX 37
+#define TEST_CASE_MAX 38
 #define TEST_LIST_MAX 20
 
 #define PRT(format, args...) printf("%s:%d() "format, __FUNCTION__, __LINE__, ##args)
@@ -140,16 +140,15 @@ int manager_test_initialize(void)
 	return ret;
 }
 
-int manager_test_get_storages(void)
+int manager_test_get_devices(void)
 {
 	int i;
 	int ret = 0;
 	int bus_location = 0;
 	int device_number = 0;
 	int device_count;
-	int storage_count;
 	mtp_device_h *mtp_devices = NULL;
-	mtp_storage_h *mtp_storages = NULL;
+	char *name = NULL;
 
 	ret = mtp_get_devices(&mtp_devices, &device_count);
 
@@ -164,16 +163,37 @@ int manager_test_get_storages(void)
 		return -1;
 	}
 
+	for (i = 0; i < device_count; i++) {
+		TC_PRT("mtp_device[%d] handle - %d", i, mtp_devices[i]);
+		ret = mtp_deviceinfo_get_manufacturer_name(mtp_devices[i], &name);
+		g_free(name);
+		ret = mtp_deviceinfo_get_model_name(mtp_devices[i], &name);
+		g_free(name);
+		ret = mtp_deviceinfo_get_bus_location(mtp_devices[i], &bus_location);
+		ret = mtp_deviceinfo_get_device_number(mtp_devices[i], &device_number);
+	}
+
 	TC_PRT("Select first device");
 
 	mtp_device = mtp_devices[0];
 
-	mtp_deviceinfo_get_bus_location(mtp_device, &bus_location);
-	mtp_deviceinfo_get_device_number(mtp_device, &device_number);
-
-	TC_PRT("bus location : %d, device_number : %d", bus_location, device_number);
-
 	TC_PRT("ret[%d]: 1st mtp device [%d]", ret, mtp_device);
+
+	END();
+	return ret;
+}
+
+
+int manager_test_get_storages(void)
+{
+	int i;
+	int ret = 0;
+	int storage_count;
+	mtp_storage_h *mtp_storages = NULL;
+
+	TC_PRT("");
+
+	TC_PRT("Selected first mtp device[%d]", mtp_device);
 
 	ret = mtp_get_storages(mtp_device, &mtp_storages, &storage_count);
 	TC_PRT("ret[%d]: storage_count[%d]", ret, storage_count);
@@ -408,6 +428,7 @@ int deviceinfo_test_get_manufacturername(void)
 
 	ret = mtp_deviceinfo_get_manufacturer_name(mtp_device, &name);
 	TC_PRT("ret[%d]: manufacturername[%s]", ret, name);
+	g_free(name);
 
 	END();
 	return ret;
@@ -421,6 +442,7 @@ int deviceinfo_test_get_modelname(void)
 
 	ret = mtp_deviceinfo_get_model_name(mtp_device, &name);
 	TC_PRT("ret[%d]: modelname[%s]", ret, name);
+	g_free(name);
 
 	END();
 	return ret;
@@ -434,6 +456,7 @@ int deviceinfo_test_get_serialnumber(void)
 
 	ret = mtp_deviceinfo_get_serial_number(mtp_device, &name);
 	TC_PRT("ret[%d]: serialnumber[%s]", ret, name);
+	g_free(name);
 
 	END();
 	return ret;
@@ -447,6 +470,7 @@ int deviceinfo_test_get_deviceversion(void)
 
 	ret = mtp_deviceinfo_get_device_version(mtp_device, &name);
 	TC_PRT("ret[%d]: deviceversion[%s]", ret, name);
+	g_free(name);
 
 	END();
 	return ret;
@@ -461,6 +485,7 @@ int storageinfo_test_get_description(void)
 
 	ret = mtp_storageinfo_get_description(mtp_device, mtp_storage, &name);
 	TC_PRT("ret[%d]: description[%s]", ret, name);
+	g_free(name);
 
 	END();
 	return ret;
@@ -513,6 +538,7 @@ int storageinfo_test_get_volumeidentifier(void)
 
 	ret = mtp_storageinfo_get_volume_identifier(mtp_device, mtp_storage, &name);
 	TC_PRT("ret[%d]: volumeidentifier[%s]", ret, name);
+	g_free(name);
 
 	END();
 	return ret;
@@ -631,7 +657,7 @@ int objectinfo_test_get_date_created(void)
 		TC_PRT("ret[%d]: object id[%d] mtp_device[%d]", ret, mtp_objects[i], value);
 
 		loctime = localtime((time_t *)&value);
-		strftime (tmp, sizeof(tmp), "%Y/%m/%d-%H:%M:%S", loctime);
+		strftime(tmp, sizeof(tmp), "%Y/%m/%d-%H:%M:%S", loctime);
 
 		TC_PRT("object id[%d]: created date[%s]", mtp_objects[i], tmp);
 	}
@@ -658,7 +684,7 @@ int objectinfo_test_get_date_modified(void)
 		TC_PRT("ret[%d]: object id[%d] date_modified[%d]", ret, mtp_objects[i], value);
 
 		loctime = localtime((time_t *)&value);
-		strftime (tmp, sizeof(tmp), "%Y/%m/%d-%H:%M:%S", loctime);
+		strftime(tmp, sizeof(tmp), "%Y/%m/%d-%H:%M:%S", loctime);
 
 		TC_PRT("object id[%d]: modified date[%s]", mtp_objects[i], tmp);
 	}
@@ -1046,49 +1072,50 @@ int application_test_remove_event_callback(void)
 tc_table_t tc_table[] = {
 	/* manager api */
 	{"mtp_initialize",							1,	manager_test_initialize},
-	{"mtp_get_storages",						2,	manager_test_get_storages},
-	{"mtp_get_object_handles",					3,	manager_test_get_object_handles},
-	{"mtp_delete_object",						4,	manager_test_delete_object},
-	{"mtp_get_object",							5,	manager_test_get_object},
-	{"mtp_get_thumbnail",						6,	manager_test_get_thumbnail},
-	{"mtp_deinitialize",						7,	manager_test_deinitialize},
+	{"mtp_get_devices",							2,	manager_test_get_devices},
+	{"mtp_get_storages",						3,	manager_test_get_storages},
+	{"mtp_get_object_handles",					4,	manager_test_get_object_handles},
+	{"mtp_delete_object",						5,	manager_test_delete_object},
+	{"mtp_get_object",							6,	manager_test_get_object},
+	{"mtp_get_thumbnail",						7,	manager_test_get_thumbnail},
+	{"mtp_deinitialize",						8,	manager_test_deinitialize},
 
 	/* device api */
-	{"mtp_deviceinfo_manufacturer_name",		8,	deviceinfo_test_get_manufacturername},
-	{"mtp_deviceinfo_model_name",				9,	deviceinfo_test_get_modelname},
-	{"mtp_deviceinfo_serial_number",			10,	deviceinfo_test_get_serialnumber},
-	{"mtp_deviceinfo_device_version",			11,	deviceinfo_test_get_deviceversion},
+	{"mtp_deviceinfo_manufacturer_name",		9,	deviceinfo_test_get_manufacturername},
+	{"mtp_deviceinfo_model_name",				10,	deviceinfo_test_get_modelname},
+	{"mtp_deviceinfo_serial_number",			11,	deviceinfo_test_get_serialnumber},
+	{"mtp_deviceinfo_device_version",			12,	deviceinfo_test_get_deviceversion},
 
 	/* storage api */
-	{"mtp_storageinfo_get_description",			12,	storageinfo_test_get_description},
-	{"mtp_storageinfo_get_freespace",			13,	storageinfo_test_get_freespace},
-	{"mtp_storageinfo_get_maxcapacity",			14,	storageinfo_test_get_maxcapacity},
-	{"mtp_storageinfo_get_storagetype",			15,	storageinfo_test_get_storagetype},
-	{"mtp_storageinfo_get_volumeidentifier",	16,	storageinfo_test_get_volumeidentifier},
+	{"mtp_storageinfo_get_description",			13,	storageinfo_test_get_description},
+	{"mtp_storageinfo_get_freespace",			14,	storageinfo_test_get_freespace},
+	{"mtp_storageinfo_get_maxcapacity",			15,	storageinfo_test_get_maxcapacity},
+	{"mtp_storageinfo_get_storagetype",			16,	storageinfo_test_get_storagetype},
+	{"mtp_storageinfo_get_volumeidentifier",	17,	storageinfo_test_get_volumeidentifier},
 
 	/* object api */
-	{"mtp_objectinfo_get_association_desc",		17,	objectinfo_test_get_association_desc},
-	{"mtp_objectinfo_get_association_type",		18,	objectinfo_test_get_association_type},
-	{"mtp_objectinfo_get_size",					19,	objectinfo_test_get_size},
-	{"mtp_objectinfo_get_date_created",			20,	objectinfo_test_get_date_created},
-	{"mtp_objectinfo_get_date_modified",		21,	objectinfo_test_get_date_modified},
-	{"mtp_objectinfo_get_file_type",			22,	objectinfo_test_get_file_type},
-	{"mtp_objectinfo_get_image_pix_depth",		23,	objectinfo_test_get_image_bit_depth},
-	{"mtp_objectinfo_get_image_pix_width",		24,	objectinfo_test_get_image_pix_width},
-	{"mtp_objectinfo_get_image_pix_height",		25,	objectinfo_test_get_image_pix_height},
-	{"mtp_objectinfo_get_thumbnail_size",		26,	objectinfo_test_get_thumbnail_size},
-	{"mtp_objectinfo_get_thumbnail_file_type",	27,	objectinfo_test_get_thumbnail_file_type},
-	{"mtp_objectinfo_get_thumbnail_pix_height",	28,	objectinfo_test_get_thumbnail_pix_height},
-	{"mtp_objectinfo_get_thumbnail_pix_width",	29,	objectinfo_test_get_thumbnail_pix_width},
-	{"mtp_objectinfo_get_filename",				30, objectinfo_test_get_filename},
-	{"mtp_objectinfo_get_keywords",				31, objectinfo_test_get_keywords},
+	{"mtp_objectinfo_get_association_desc",		18,	objectinfo_test_get_association_desc},
+	{"mtp_objectinfo_get_association_type",		19,	objectinfo_test_get_association_type},
+	{"mtp_objectinfo_get_size",					20,	objectinfo_test_get_size},
+	{"mtp_objectinfo_get_date_created",			21,	objectinfo_test_get_date_created},
+	{"mtp_objectinfo_get_date_modified",		22,	objectinfo_test_get_date_modified},
+	{"mtp_objectinfo_get_file_type",			23,	objectinfo_test_get_file_type},
+	{"mtp_objectinfo_get_image_pix_depth",		24,	objectinfo_test_get_image_bit_depth},
+	{"mtp_objectinfo_get_image_pix_width",		25,	objectinfo_test_get_image_pix_width},
+	{"mtp_objectinfo_get_image_pix_height",		26,	objectinfo_test_get_image_pix_height},
+	{"mtp_objectinfo_get_thumbnail_size",		27,	objectinfo_test_get_thumbnail_size},
+	{"mtp_objectinfo_get_thumbnail_file_type",	28,	objectinfo_test_get_thumbnail_file_type},
+	{"mtp_objectinfo_get_thumbnail_pix_height",	29,	objectinfo_test_get_thumbnail_pix_height},
+	{"mtp_objectinfo_get_thumbnail_pix_width",	30,	objectinfo_test_get_thumbnail_pix_width},
+	{"mtp_objectinfo_get_filename",				31, objectinfo_test_get_filename},
+	{"mtp_objectinfo_get_keywords",				32, objectinfo_test_get_keywords},
 
 	/* application test */
-	{"get Jpeg image from /DCIM folder",			32,	application_test_get_image_from_DCIM},
-	{"get object handle using ALL file type",		33,	application_test_get_object_handle_using_all},
-	{"get object handle using ALL Image file type",	34,	application_test_get_object_handle_using_all_image},
-	{"test add callback function",					35,	application_test_add_event_callback},
-	{"test remove callback function",				36,	application_test_remove_event_callback},
+	{"get Jpeg image from /DCIM folder",			33,	application_test_get_image_from_DCIM},
+	{"get object handle using ALL file type",		34,	application_test_get_object_handle_using_all},
+	{"get object handle using ALL Image file type",	35,	application_test_get_object_handle_using_all_image},
+	{"test add callback function",					36,	application_test_add_event_callback},
+	{"test remove callback function",				37,	application_test_remove_event_callback},
 	{"get object and get thumbnail test",			TEST_CASE_MAX,	NULL},
 
 	/*-----------*/

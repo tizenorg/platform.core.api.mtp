@@ -39,8 +39,7 @@ static void __mtp_event_cb(mtpgdbuslibManager *object,
 	GSList *l;
 	event_cb_s *event_s;
 
-	for (l = event_cb_list; l != NULL; l = l->next)
-	{
+	for (l = event_cb_list; l != NULL; l = l->next) {
 		event_s = (event_cb_s *)l->data;
 		event_s->cb(event, arg1, event_s->user_data);
 	}
@@ -87,11 +86,10 @@ mtp_error_e mtp_gdbus_manager_remove_event_cb(mtp_event_cb callback)
 	GSList *l;
 	event_cb_s *event_s;
 
-	for (l = event_cb_list; l != NULL; l = l->next)
-	{
+	for (l = event_cb_list; l != NULL; l = l->next)	{
 		event_s = (event_cb_s *)l->data;
 		if (callback == event_s->cb)
-			event_cb_list = g_slist_delete_link (event_cb_list, l);
+			event_cb_list = g_slist_delete_link(event_cb_list, l);
 	}
 
 	return MTP_ERROR_NONE;
