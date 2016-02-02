@@ -508,12 +508,12 @@ int mtp_deviceinfo_get_device_version(mtp_device_h mtp_device, char **device_ver
 int mtp_storageinfo_get_description(mtp_device_h mtp_device, mtp_storage_h mtp_storage, char **description);
 
 /**
- * @brief Gets the free space of the storage information.
+ * @brief Gets the free space of the storage information in bytes.
  * @since_tizen 3.0
  *
  * @param [in] mtp_device The MTP device
  * @param [in] mtp_storage The MTP storage
- * @param [out] free_space The free space of Storage information
+ * @param [out] free_space The free space of Storage information (bytes)
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful
@@ -532,12 +532,12 @@ int mtp_storageinfo_get_description(mtp_device_h mtp_device, mtp_storage_h mtp_s
 int mtp_storageinfo_get_free_space(mtp_device_h mtp_device, mtp_storage_h mtp_storage, unsigned long long *free_space);
 
 /**
- * @brief Gets the max capacity of the storage information.
+ * @brief Gets the max capacity of the storage information in bytes.
  * @since_tizen 3.0
  *
  * @param [in] mtp_device The MTP device
  * @param [in] mtp_storage The MTP storage
- * @param [out] max_capacity The max capacity of Storage information
+ * @param [out] max_capacity The max capacity of Storage information (bytes)
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #MTP_ERROR_NONE Successful

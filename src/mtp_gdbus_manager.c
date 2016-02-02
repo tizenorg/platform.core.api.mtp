@@ -95,6 +95,14 @@ mtp_error_e mtp_gdbus_manager_remove_event_cb(mtp_event_cb callback)
 	return MTP_ERROR_NONE;
 }
 
+mtp_error_e mtp_gdbus_manager_remove_all_event_cb(void)
+{
+	g_slist_free_full(event_cb_list, g_free);
+	event_cb_list = NULL;
+
+	return MTP_ERROR_NONE;
+}
+
 mtp_error_e mtp_gdbus_manager_initialize(void)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
