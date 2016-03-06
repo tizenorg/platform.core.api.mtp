@@ -1,6 +1,6 @@
 Name:       capi-network-mtp
 Summary:    A MTP library in Native API
-Version:    1.3.8
+Version:    1.3.9
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0
@@ -13,6 +13,7 @@ BuildRequires:  pkgconfig(gobject-2.0)
 BuildRequires:  pkgconfig(capi-base-common)
 BuildRequires:  pkgconfig(capi-system-info)
 BuildRequires:  pkgconfig(sqlite3)
+Buildrequires:  pkgconfig(libtzplatform-config)
 BuildRequires:  python
 Buildrequires:  python-xml
 

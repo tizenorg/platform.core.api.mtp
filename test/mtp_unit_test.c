@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <glib.h>
 #include <sys/time.h>
+#include <tzplatform_config.h>
 
 #include <mtp.h>
 #include <mtp_internal.h>
@@ -17,6 +18,8 @@
 
 #define BEGIN() TC_PRT("BEGIN >>>>");
 #define END() TC_PRT("END <<<<");
+
+#define DOWNLOAD_DIR tzplatform_getenv(TZ_USER_DOWNLOADS)
 
 static mtp_device_h mtp_device;
 static mtp_storage_h mtp_storage = 0;
@@ -350,7 +353,8 @@ int manager_test_get_object(void)
 		return -1;
 	}
 
-	snprintf(filepath, 100, "/opt/usr/media/Downloads/JpegObject_%d.jpg", input_int);
+	snprintf(filepath, 100, "%s/JpegObject_%d.jpg", DOWNLOAD_DIR, input_int);
+	TC_PRT("filepath[%s]", filepath);
 
 	ret = mtp_get_object(mtp_device, input_int, filepath);
 	TC_PRT("ret[%d]: input id[%d]", ret, input_int);
@@ -399,7 +403,8 @@ int manager_test_get_thumbnail(void)
 		return -1;
 	}
 
-	snprintf(filepath, 100, "/opt/usr/media/Downloads/%s_%d.jpg", input_str, input_int);
+	snprintf(filepath, 100, "%s/%s_%d.jpg", DOWNLOAD_DIR, input_str, input_int);
+	TC_PRT("filepath[%s]", filepath);
 
 	ret = mtp_get_thumbnail(mtp_device, input_int, filepath);
 	TC_PRT("ret[%d]: input jpeg id[%d], input file path[%s]", ret, input_int, filepath);
