@@ -650,7 +650,7 @@ int objectinfo_test_get_date_created(void)
 	int ret = 0;
 	int value = 0;
 	int list_max = 0;
-	struct tm *loctime;
+	struct tm loctime;
 	char tmp[64];
 
 	BEGIN();
@@ -661,8 +661,8 @@ int objectinfo_test_get_date_created(void)
 		ret = mtp_objectinfo_get_date_created(mtp_device, mtp_objects[i], &value);
 		TC_PRT("ret[%d]: object id[%d] mtp_device[%d]", ret, mtp_objects[i], value);
 
-		loctime = localtime((time_t *)&value);
-		strftime(tmp, sizeof(tmp), "%Y/%m/%d-%H:%M:%S", loctime);
+		localtime_r((time_t *)&value, &loctime);
+		strftime(tmp, sizeof(tmp), "%Y/%m/%d-%H:%M:%S", &loctime);
 
 		TC_PRT("object id[%d]: created date[%s]", mtp_objects[i], tmp);
 	}
@@ -677,7 +677,7 @@ int objectinfo_test_get_date_modified(void)
 	int ret = 0;
 	int value = 0;
 	int list_max = 0;
-	struct tm *loctime;
+	struct tm loctime;
 	char tmp[64];
 
 	BEGIN();
@@ -688,8 +688,8 @@ int objectinfo_test_get_date_modified(void)
 		ret = mtp_objectinfo_get_date_modified(mtp_device, mtp_objects[i], &value);
 		TC_PRT("ret[%d]: object id[%d] date_modified[%d]", ret, mtp_objects[i], value);
 
-		loctime = localtime((time_t *)&value);
-		strftime(tmp, sizeof(tmp), "%Y/%m/%d-%H:%M:%S", loctime);
+		localtime_r((time_t *)&value, &loctime);
+		strftime(tmp, sizeof(tmp), "%Y/%m/%d-%H:%M:%S", &loctime);
 
 		TC_PRT("object id[%d]: modified date[%s]", mtp_objects[i], tmp);
 	}
