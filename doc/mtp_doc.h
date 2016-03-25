@@ -97,7 +97,7 @@
  *
  */
 
-/*
+/**
  * @defgroup	CAPI_NETWORK_MTP_DEVICEINFO_MODULE MTP Device Information
  * @brief	The MTP Device Information API provides functions for gets the device information of MTP responder device.
  * @ingroup	CAPI_NETWORK_MTP_MODULE
@@ -126,7 +126,7 @@
  */
 
 
-/*
+/**
  * @defgroup	CAPI_NETWORK_MTP_STORAGEINFO_MODULE MTP Storage Information
  * @brief	The MTP Storage Information API provides functions for gets the storage information of MTP responder storage.
  * @ingroup	CAPI_NETWORK_MTP_MODULE
@@ -154,7 +154,7 @@
  *
  */
 
-/*
+/**
  * @defgroup	CAPI_NETWORK_MTP_OBJECTINFO_MODULE MTP Object Information
  * @brief	The MTP Manager API provides functions for gets the object information of certain file in MTP responder.
  * @ingroup	CAPI_NETWORK_MTP_MODULE
