@@ -118,6 +118,8 @@ int mtp_get_devices(int **mtp_devices, int *device_count)
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_devices == NULL, MTP_ERROR_INVALID_PARAMETER);
+
+	/* LCOV_EXCL_START */
 	cond_expr_ret(device_count == NULL, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
@@ -129,6 +131,7 @@ int mtp_get_devices(int **mtp_devices, int *device_count)
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_get_storages(int mtp_device, int **mtp_storages, int* storage_count)
@@ -143,6 +146,8 @@ int mtp_get_storages(int mtp_device, int **mtp_storages, int* storage_count)
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+
+	/* LCOV_EXCL_START */
 	cond_expr_ret(mtp_storages == NULL, MTP_ERROR_INVALID_PARAMETER);
 	cond_expr_ret(storage_count == NULL, MTP_ERROR_INVALID_PARAMETER);
 
@@ -155,6 +160,7 @@ int mtp_get_storages(int mtp_device, int **mtp_storages, int* storage_count)
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_get_object_handles(int mtp_device, int mtp_storage, mtp_filetype_e file_type,
@@ -170,6 +176,8 @@ int mtp_get_object_handles(int mtp_device, int mtp_storage, mtp_filetype_e file_
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+
+	/* LCOV_EXCL_START */
 	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 	cond_expr_ret(object_handles == NULL, MTP_ERROR_INVALID_PARAMETER);
 	cond_expr_ret(object_count == NULL, MTP_ERROR_INVALID_PARAMETER);
@@ -182,8 +190,10 @@ int mtp_get_object_handles(int mtp_device, int mtp_storage, mtp_filetype_e file_
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
+/* LCOV_EXCL_START */
 int mtp_delete_object(int mtp_device, int object_handle)
 {
 	int ret = MTP_ERROR_NONE;
@@ -206,6 +216,7 @@ int mtp_delete_object(int mtp_device, int object_handle)
 
 	return ret;
 }
+/* LCOV_EXCL_STOP */
 
 int mtp_get_object(int mtp_device, int object_handle, char *dest_path)
 {
@@ -219,6 +230,8 @@ int mtp_get_object(int mtp_device, int object_handle, char *dest_path)
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+
+	/* LCOV_EXCL_START */
 	cond_expr_ret(dest_path == NULL, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
@@ -228,6 +241,7 @@ int mtp_get_object(int mtp_device, int object_handle, char *dest_path)
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_get_thumbnail(int mtp_device, int object_handle, char *dest_path)
@@ -242,6 +256,8 @@ int mtp_get_thumbnail(int mtp_device, int object_handle, char *dest_path)
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+
+	/* LCOV_EXCL_START */
 	cond_expr_ret(dest_path == NULL, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
@@ -251,6 +267,7 @@ int mtp_get_thumbnail(int mtp_device, int object_handle, char *dest_path)
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_add_mtp_event_cb(mtp_event_cb callback, void *user_data)
@@ -342,6 +359,7 @@ int mtp_deviceinfo_get_manufacturer_name(int mtp_device, char **manufacturer_nam
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_deviceinfo_get_manufacturer_name(mtp_device, manufacturer_name);
 
 	TC_PRT("manufacturername %s", *manufacturer_name);
@@ -349,6 +367,7 @@ int mtp_deviceinfo_get_manufacturer_name(int mtp_device, char **manufacturer_nam
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_deviceinfo_get_model_name(int mtp_device, char **model_name)
@@ -366,6 +385,7 @@ int mtp_deviceinfo_get_model_name(int mtp_device, char **model_name)
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_deviceinfo_get_model_name(mtp_device, model_name);
 
 	TC_PRT("modelname %s", *model_name);
@@ -373,6 +393,7 @@ int mtp_deviceinfo_get_model_name(int mtp_device, char **model_name)
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_deviceinfo_get_serial_number(int mtp_device, char **serial_number)
@@ -390,6 +411,7 @@ int mtp_deviceinfo_get_serial_number(int mtp_device, char **serial_number)
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_deviceinfo_get_serial_number(mtp_device, serial_number);
 
 	TC_PRT("serial number %s", *serial_number);
@@ -397,6 +419,7 @@ int mtp_deviceinfo_get_serial_number(int mtp_device, char **serial_number)
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_deviceinfo_get_device_version(int mtp_device, char **device_version)
@@ -414,6 +437,7 @@ int mtp_deviceinfo_get_device_version(int mtp_device, char **device_version)
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_deviceinfo_get_device_version(mtp_device, device_version);
 
 	TC_PRT("device version %s", *device_version);
@@ -421,8 +445,10 @@ int mtp_deviceinfo_get_device_version(int mtp_device, char **device_version)
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
+/* LCOV_EXCL_START */
 int mtp_deviceinfo_get_bus_location(int mtp_device, int *bus_location)
 {
 	int ret = MTP_ERROR_NONE;
@@ -472,6 +498,7 @@ int mtp_deviceinfo_get_device_number(int mtp_device, int *device_number)
 
 	return ret;
 }
+/* LCOV_EXCL_STOP */
 
 /* Storage Info */
 int mtp_storageinfo_get_description(int mtp_device, int mtp_storage, char **description)
@@ -486,6 +513,8 @@ int mtp_storageinfo_get_description(int mtp_device, int mtp_storage, char **desc
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+
+	/* LCOV_EXCL_START */
 	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
@@ -497,6 +526,7 @@ int mtp_storageinfo_get_description(int mtp_device, int mtp_storage, char **desc
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_storageinfo_get_free_space(int mtp_device, int mtp_storage, unsigned long long *free_space)
@@ -511,6 +541,8 @@ int mtp_storageinfo_get_free_space(int mtp_device, int mtp_storage, unsigned lon
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+
+	/* LCOV_EXCL_START */
 	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
@@ -522,6 +554,7 @@ int mtp_storageinfo_get_free_space(int mtp_device, int mtp_storage, unsigned lon
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_storageinfo_get_max_capacity(int mtp_device, int mtp_storage, unsigned long long *max_capacity)
@@ -536,6 +569,8 @@ int mtp_storageinfo_get_max_capacity(int mtp_device, int mtp_storage, unsigned l
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+
+	/* LCOV_EXCL_START */
 	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
@@ -547,6 +582,7 @@ int mtp_storageinfo_get_max_capacity(int mtp_device, int mtp_storage, unsigned l
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_storageinfo_get_storage_type(int mtp_device, int mtp_storage, mtp_storage_type_e *storage_type)
@@ -561,6 +597,8 @@ int mtp_storageinfo_get_storage_type(int mtp_device, int mtp_storage, mtp_storag
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+
+	/* LCOV_EXCL_START */
 	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
@@ -572,6 +610,7 @@ int mtp_storageinfo_get_storage_type(int mtp_device, int mtp_storage, mtp_storag
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_storageinfo_get_volume_identifier(int mtp_device, int mtp_storage, char **volume_identifier)
@@ -586,6 +625,8 @@ int mtp_storageinfo_get_volume_identifier(int mtp_device, int mtp_storage, char 
 	CHECK_INIT();
 	CHECK_ACTIVATED();
 	cond_expr_ret(mtp_device == 0, MTP_ERROR_INVALID_PARAMETER);
+
+	/* LCOV_EXCL_START */
 	cond_expr_ret(mtp_storage == 0, MTP_ERROR_INVALID_PARAMETER);
 
 	/* precondition check end */
@@ -597,6 +638,7 @@ int mtp_storageinfo_get_volume_identifier(int mtp_device, int mtp_storage, char 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 /* Object Info */
@@ -616,6 +658,7 @@ int mtp_objectinfo_get_parent_object_handle(int mtp_device, int object_handle,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_PARENT_OBJECT_HANDLE, parent_object_handle);
 
@@ -624,6 +667,7 @@ int mtp_objectinfo_get_parent_object_handle(int mtp_device, int object_handle,
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_storage(int mtp_device, int object_handle,
@@ -642,12 +686,14 @@ int mtp_objectinfo_get_storage(int mtp_device, int object_handle,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_STORAGE, mtp_storage);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_association_desc(int mtp_device,
@@ -666,12 +712,14 @@ int mtp_objectinfo_get_association_desc(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_ASSOCIATION_DESC, asso_desc);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_association_type(int mtp_device,
@@ -690,12 +738,14 @@ int mtp_objectinfo_get_association_type(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_ASSOCIATION_TYPE, asso_type);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_size(int mtp_device, int object_handle, int *size)
@@ -713,12 +763,14 @@ int mtp_objectinfo_get_size(int mtp_device, int object_handle, int *size)
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_SIZE, size);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_date_created(int mtp_device,
@@ -737,12 +789,14 @@ int mtp_objectinfo_get_date_created(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_DATE_CREATED, data_created);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_date_modified(int mtp_device,
@@ -761,12 +815,14 @@ int mtp_objectinfo_get_date_modified(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_DATE_MODIFIED, data_modified);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_file_type(int mtp_device, int object_handle, mtp_filetype_e *file_type)
@@ -784,12 +840,14 @@ int mtp_objectinfo_get_file_type(int mtp_device, int object_handle, mtp_filetype
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_FILE_TYPE, (int*)file_type);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_image_bit_depth(int mtp_device,
@@ -808,12 +866,14 @@ int mtp_objectinfo_get_image_bit_depth(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_IMAGE_BIT_DEPTH, depth);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_image_pix_width(int mtp_device,
@@ -832,12 +892,14 @@ int mtp_objectinfo_get_image_pix_width(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_IMAGE_PIX_WIDTH, width);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_image_pix_height(int mtp_device,
@@ -856,12 +918,14 @@ int mtp_objectinfo_get_image_pix_height(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_IMAGE_PIX_HEIGHT, height);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_thumbnail_size(int mtp_device,
@@ -880,12 +944,14 @@ int mtp_objectinfo_get_thumbnail_size(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_THUMBNAIL_SIZE, size);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_thumbnail_file_type(int mtp_device,
@@ -904,12 +970,14 @@ int mtp_objectinfo_get_thumbnail_file_type(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_THUMBNAIL_FILE_TYPE, (int*)file_type);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_thumbnail_pix_height(int mtp_device,
@@ -928,12 +996,14 @@ int mtp_objectinfo_get_thumbnail_pix_height(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_THUMBNAIL_HEIGHT, height);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_thumbnail_pix_width(int mtp_device,
@@ -952,12 +1022,14 @@ int mtp_objectinfo_get_thumbnail_pix_width(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property(mtp_device,
 		object_handle, MTP_PROPERTY_THUMBNAIL_WIDTH, width);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_file_name(int mtp_device,
@@ -976,12 +1048,14 @@ int mtp_objectinfo_get_file_name(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property_string(mtp_device,
 		object_handle, MTP_PROPERTY_FILENAME, filename);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
 int mtp_objectinfo_get_keywords(int mtp_device,
@@ -1000,14 +1074,17 @@ int mtp_objectinfo_get_keywords(int mtp_device,
 
 	/* precondition check end */
 
+	/* LCOV_EXCL_START */
 	ret = mtp_gdbus_objectinfo_get_property_string(mtp_device,
 		object_handle, MTP_PROPERTY_KEYWORDS, keywords);
 
 	_END();
 
 	return ret;
+	/* LCOV_EXCL_STOP */
 }
 
+/* LCOV_EXCL_START */
 int mtp_objectinfo_get_object_info(int mtp_device,
 	int object_handle, mtp_object_info **object_info)
 {
@@ -1030,4 +1107,5 @@ int mtp_objectinfo_get_object_info(int mtp_device,
 
 	return ret;
 }
+/* LCOV_EXCL_STOP */
 

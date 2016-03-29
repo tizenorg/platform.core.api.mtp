@@ -34,6 +34,7 @@ void mtp_gdbus_storageinfo_proxy_deinit(void)
 	storageinfo_proxy = NULL;
 }
 
+/* LCOV_EXCL_START */
 mtp_error_e mtp_gdbus_storageinfo_get_description(int mtp_device,
 	int mtp_storage, char **description)
 {
@@ -153,3 +154,5 @@ mtp_error_e mtp_gdbus_storageinfo_get_volume_identifier(int mtp_device,
 
 	return result;
 }
+/* LCOV_EXCL_STOP */
+

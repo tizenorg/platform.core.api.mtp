@@ -49,6 +49,7 @@ mtp_error_e mtp_db_init()
 	return ret;
 }
 
+/* LCOV_EXCL_START */
 mtp_error_e mtp_db_get_object_info(int mtp_device, int object_handle, mtp_object_info** object_info)
 {
 	int ret = MTP_ERROR_NONE;
@@ -112,6 +113,7 @@ mtp_error_e mtp_db_get_object_info(int mtp_device, int object_handle, mtp_object
 
 	return ret;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_error_e mtp_db_deinit()
 {
@@ -124,7 +126,7 @@ mtp_error_e mtp_db_deinit()
 		sql_ret = sqlite3_close(db);
 
 		if (sql_ret != SQLITE_OK)
-			ret = MTP_ERROR_DB;
+			ret = MTP_ERROR_DB; /* LCOV_EXCL_LINE */
 
 		db = NULL;
 	}

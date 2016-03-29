@@ -34,6 +34,7 @@ void mtp_gdbus_objectinfo_proxy_deinit(void)
 	objectinfo_proxy = NULL;
 }
 
+/* LCOV_EXCL_START */
 int mtp_gdbus_objectinfo_get_property(int mtp_device,
 	int object_handle, int property, int *property_value)
 {
@@ -83,4 +84,5 @@ int mtp_gdbus_objectinfo_get_property_string(int mtp_device,
 
 	return result;
 }
+/* LCOV_EXCL_STOP */
 

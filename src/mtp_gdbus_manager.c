@@ -33,6 +33,7 @@ typedef struct _event_cb_s {
 mtpgdbuslibManager *manager_proxy = NULL;
 static __thread GSList *event_cb_list = NULL;
 
+/* LCOV_EXCL_START */
 static void __mtp_event_cb(mtpgdbuslibManager *object,
 	gint event, gint arg1, gpointer user_data)
 {
@@ -44,6 +45,7 @@ static void __mtp_event_cb(mtpgdbuslibManager *object,
 		event_s->cb(event, arg1, event_s->user_data);
 	}
 }
+/* LCOV_EXCL_STOP */
 
 static void __manager_proxy_init(void)
 {
@@ -87,9 +89,11 @@ mtp_error_e mtp_gdbus_manager_remove_event_cb(mtp_event_cb callback)
 	event_cb_s *event_s;
 
 	for (l = event_cb_list; l != NULL; l = l->next) {
+		/* LCOV_EXCL_START */
 		event_s = (event_cb_s *)l->data;
 		if (callback == event_s->cb)
 			event_cb_list = g_slist_delete_link(event_cb_list, l);
+		/* LCOV_EXCL_STOP */
 	}
 
 	return MTP_ERROR_NONE;
@@ -113,11 +117,12 @@ mtp_error_e mtp_gdbus_manager_initialize(void)
 	mtp_gdbus_objectinfo_proxy_init();
 
 	if (manager_proxy == NULL)
-		result = MTP_ERROR_NOT_COMM_INITIALIZED;
+		result = MTP_ERROR_NOT_COMM_INITIALIZED; /* LCOV_EXCL_LINE */
 
 	return result;
 }
 
+/* LCOV_EXCL_START */
 mtp_error_e mtp_gdbus_manager_get_devices(int **mtp_devices, int *device_num)
 {
 	GVariant *va = NULL;
@@ -339,6 +344,7 @@ mtp_error_e mtp_gdbus_manager_get_thumbnail(int mtp_device,
 
 	return result;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_error_e mtp_gdbus_manager_deinitialize(void)
 {

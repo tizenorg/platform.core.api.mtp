@@ -34,6 +34,7 @@ void mtp_gdbus_deviceinfo_proxy_deinit(void)
 	deviceinfo_proxy = NULL;
 }
 
+/* LCOV_EXCL_START */
 mtp_error_e mtp_gdbus_deviceinfo_get_manufacturer_name(int mtp_device, char **manufacturer_name)
 {
 	mtp_error_e result = MTP_ERROR_NONE;
@@ -165,4 +166,5 @@ mtp_error_e mtp_gdbus_deviceinfo_get_device_number(int mtp_device, int *device_n
 
 	return result;
 }
+/* LCOV_EXCL_STOP */
 
