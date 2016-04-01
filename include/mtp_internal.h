@@ -42,11 +42,11 @@ typedef struct _mtp_object_info {
 	int AssociationType;
 	int AssociationDesc;
 	int SequenceNumber;
-	char 	*Filename;
+	char *Filename;
 	int	CaptureDate;
 	int	ModificationDate;
-	char 	*Keywords;
-}mtp_object_info;
+	char *Keywords;
+} mtp_object_info;
 
 /* internal api */
 int mtp_objectinfo_get_object_info(int mtp_device, int object_handle, mtp_object_info **object_info);
