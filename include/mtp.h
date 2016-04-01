@@ -172,7 +172,7 @@ typedef enum {
  * @see mtp_set_mtp_event_cb()
  * @see mtp_unset_mtp_event_cb()
  */
-typedef void (* mtp_event_cb)(mtp_event_e event, int event_parameter, void *user_data);
+typedef void (*mtp_event_cb)(mtp_event_e event, int event_parameter, void *user_data);
 
 /**
  * @brief Initializes for using MTP.
