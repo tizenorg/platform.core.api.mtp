@@ -22,11 +22,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
+#include <tzplatform_config.h>
 
 #include "mtp.h"
 #include "mtp_internal.h"
 
-#define MTP_DB_FILE "/tmp/.mtp.db"
+#define MTP_DB_FILE tzplatform_mkpath(TZ_SYS_DB, "mtp/.mtp.db")
 #define MTP_DB_TABLE "mtp_object_info"
 
 mtp_error_e mtp_db_init(void);

@@ -11,7 +11,7 @@ SET(service "network")
 SET(submodule "mtp")
 
 # for package file
-SET(dependents "dlog glib-2.0 gio-2.0 capi-base-common gio-unix-2.0 sqlite3 capi-system-info")
+SET(dependents "dlog glib-2.0 gio-2.0 capi-base-common gio-unix-2.0 sqlite3 capi-system-info libtzplatform-config")
 SET(pc_dependents "capi-base-common")
 
 SET(fw_name "${project_prefix}-${service}-${submodule}")
